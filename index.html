@@ -2136,47 +2136,40 @@
 
     function construirMensajeCliente(orden, meta) {
       const items = (meta && Array.isArray(meta.items)) ? meta.items : [];
-      const pago = (meta && meta.pago) || orden.metodo_pago || "POS";
       const modalidad = (meta && meta.modalidad) || orden.modalidad || "En taller";
       const direccionRef = (meta && meta.direccionRef) || orden.direccion_referencia || "";
-      const summary = getCartSummaryText(items, "es");
       const cli = String(orden.cliente_nombre || "").trim();
-      const akadEmail = cargarCorreoAkad();
+      const ordenId = String(orden.id || "").trim();
 
-      let montoStr = "Precio variado (indicado luego del trabajo)";
-      if (summary.hasFixedPrice && !summary.hasPostServicePrice) {
-        montoStr = `$${summary.fixedTotal}`;
-      } else if (summary.hasFixedPrice && summary.hasPostServicePrice) {
-        montoStr = `$${summary.fixedTotal} + precio variado (indicado luego del trabajo)`;
-      }
+      const rawAgenda = String(orden.hora_aproximada || "").trim();
+      const partesAgenda = rawAgenda.includes("|")
+        ? rawAgenda.split("|").map(s => s.trim())
+        : ["", rawAgenda];
+      const fechaAgenda = partesAgenda[0] || "";
+      const horarioAgenda = partesAgenda[1] || rawAgenda;
 
-      const cabecera = [
-        cli ? `Hola ${cli}, te escribimos de AKAD Mobile Mechanics` : `Te escribimos de AKAD Mobile Mechanics`,
-        orden.id ? `respecto a tu orden ${orden.id}.` : "."
-      ].join(" ").replace(" .", ".");
+      const serviciosLista = items.length
+        ? items.map(i => {
+            const nombreSrv = String(i.esTitle || i.enTitle || "").trim();
+            const precioTxt = typeof i.price === "number" ? ` ($${i.price})` : "";
+            return `${nombreSrv}${precioTxt}`;
+          }).join(", ")
+        : String(orden.servicios || "Servicio de taller").trim();
 
-      const datosOrden = [
-        `• Local: AKAD Mobile Mechanics (Tel/SMS: +1 321-914-6552${akadEmail ? ` | ${akadEmail}` : ""})`,
-        `• Ubicación taller: ${AKAD_MAPS_URL}`,
-        orden.hora_aproximada ? `• Fecha y franja: ${orden.hora_aproximada}` : "",
-        `• Modalidad: ${modalidad}${modalidad === "A domicilio" && direccionRef ? ` — Dirección: ${direccionRef}` : ""}`,
-        `• Monto: ${montoStr}`,
-        `• Método de pago: ${pago}`
-      ].filter(Boolean).join("\n");
+      const saludo = cli
+        ? `Hola ${cli}, te escribimos de AKAD Mobile Mechanics`
+        : `Hola, te escribimos de AKAD Mobile Mechanics`;
+      const refOrden = ordenId ? ` respecto a tu orden ${ordenId}.` : ".";
 
-      const detalleServicios = summary.linesList.length
-        ? summary.linesList.join("\n")
-        : `- ${orden.servicios || summary.servicesText}`;
+      const franjaTxt = horarioAgenda
+        ? `en el horario de ${horarioAgenda}${fechaAgenda ? ` (${fechaAgenda})` : ""}`
+        : (fechaAgenda ? `para la fecha ${fechaAgenda}` : "según lo programado");
 
-      return [
-        cabecera,
-        "",
-        "Datos de la orden:",
-        datosOrden,
-        "",
-        "Detalle del servicio:",
-        detalleServicios
-      ].join("\n").trim();
+      const dirTxt = (modalidad === "A domicilio" && direccionRef)
+        ? `, en la dirección que nos indicaste: ${direccionRef}`
+        : "";
+
+      return `${saludo}${refOrden} Te atendemos ${franjaTxt} con el servicio: ${serviciosLista}${dirTxt}.`.trim();
     }
 
     function renderTablaTaller() {
