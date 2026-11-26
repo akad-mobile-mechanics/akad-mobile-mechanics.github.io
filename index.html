@@ -61,6 +61,17 @@
     }
     .entity-title-btn:hover { color: #FFD7C2; text-decoration: underline; text-underline-offset: 3px; }
     .brand p { font-size: 12.5px; color: #E7DFD8; margin-top: 2px; }
+    .location-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #FFB996;
+      text-decoration: none;
+    }
+    .location-link:hover { color: #FFF; text-decoration: underline; text-underline-offset: 3px; }
 
     .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .lang-switch {
@@ -125,7 +136,10 @@
       font-size: 12.5px;
     }
     .info-chip strong { display: block; font-size: 11.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-    .info-chip span { font-weight: 700; color: var(--ink); }
+    .info-chip span, .info-chip a { font-weight: 700; color: var(--ink); }
+    .info-chip a { text-decoration: none; }
+    .info-chip a:hover { color: var(--accent-dark); text-decoration: underline; }
+    .chip-sublink { display: inline-block; margin-left: 8px; font-size: 11.5px; color: var(--accent-dark) !important; }
 
     .services-grid {
       display: grid;
@@ -257,6 +271,7 @@
     .btn-primary:hover { background: var(--accent-dark); }
     .btn-soft { background: #EFEAE3; color: var(--ink); }
     .btn-wa { background: #25D366; color: #FFF; }
+    .btn-sms { background: #1D4ED8; color: #FFF; }
 
     .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: #FFF; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--ink); }
@@ -363,6 +378,9 @@
         <div>
           <button type="button" class="entity-title-btn" id="entityTitleBtn" onclick="abrirAccesoAdminPorTitulo()">AKAD Mobile Mechanics</button>
           <p id="tSubtitle">Turn Queue &amp; Live Status</p>
+          <a class="location-link" id="tLocationLink" href="https://maps.app.goo.gl/8nC92cRb75KRz2Sa7" target="_blank" rel="noopener noreferrer">
+            📍 View AKAD Location on Google Maps
+          </a>
         </div>
       </div>
 
@@ -390,12 +408,17 @@
             <span id="tHoursValue">Mon – Sat · 8:30 AM – 6:00 PM</span>
           </div>
           <div class="info-chip">
-            <strong id="tPhoneInfoLabel">Phone</strong>
+            <strong id="tPhoneInfoLabel">Phone / SMS</strong>
             <span>+1 321 9146552</span>
+            <a class="chip-sublink" id="tSmsChipLink" href="sms:+13219146552">Send SMS</a>
           </div>
           <div class="info-chip">
             <strong id="tEmailInfoLabel">Email</strong>
             <span id="tEmailInfoValue">akadmechanics@gmail.com</span>
+          </div>
+          <div class="info-chip">
+            <strong id="tLocationInfoLabel">Location</strong>
+            <a id="tLocationChipLink" href="https://maps.app.goo.gl/8nC92cRb75KRz2Sa7" target="_blank" rel="noopener noreferrer">Google Maps 📍</a>
           </div>
         </div>
 
@@ -544,7 +567,7 @@
 
         <div id="tallerWorkspace" style="display:none;">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12.5px;color:var(--muted);font-weight:700;">Conectado a Google Sheets · Lunes a sábado 8:30 AM – 6:00 PM</span>
+            <span style="font-size:12.5px;color:var(--muted);font-weight:700;">Conectado a Google Sheets · Lunes a sábado 8:30 AM – 6:00 PM · SMS: 3219146552</span>
             <div style="display:flex;gap:8px;">
               <button class="btn btn-soft btn-sm" type="button" onclick="cargarPanelTaller(false)">Refrescar órdenes</button>
               <button class="btn btn-soft btn-sm" type="button" onclick="cerrarSesionTaller()">Bloquear</button>
@@ -702,6 +725,8 @@
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwHgoFWSWlAZwQaLXl7HxNTqQwN-eyY2HKk7tEayRckIz9xygPxSp8aqcvKCV8gKMw/exec";
     const AKAD_WA_NUMBER = "13219146552";
+    const AKAD_SMS_NUMBER = "3219146552";
+    const AKAD_MAPS_URL = "https://maps.app.goo.gl/8nC92cRb75KRz2Sa7";
     const DEFAULT_AKAD_EMAIL = "akadmechanics@gmail.com";
     const CACHE_QUEUE_KEY = "akad_queue_cache_v1";
     const PIN_SESSION_KEY = "akad_taller_pin_v1";
@@ -785,12 +810,18 @@
         htmlLang: "en",
         docTitle: "AKAD Mobile Mechanics — Queue & Services",
         subtitle: "Turn Queue & Live Status",
+        locationLink: "📍 AKAD Location · Open in Google Maps",
+        locationInfoLabel: "Location",
+        locationChipText: "Open in Google Maps 📍",
+        smsChipText: "SMS",
+        smsClientMessage: "Hello, I saw your portal and would like to reach out regarding a case / I'm interested in AKAD's services.",
+        waClientMessage: "Hello, I saw your portal and would like to reach out regarding a case / I'm interested in AKAD's services.",
         tabTurno: "1. Book Turn",
         tabCola: "2. Live Queue",
         formTitle: "Request a Turn",
         hoursLabel: "Business Hours",
         hoursValue: "Mon – Sat · 8:30 AM – 6:00 PM",
-        phoneInfoLabel: "Phone",
+        phoneInfoLabel: "Phone / SMS",
         emailInfoLabel: "Email",
         lblNombre: "Name *",
         phNombre: "e.g. John Doe",
@@ -807,7 +838,8 @@
         btnAddCart: "+ Add to cart",
         btnRemoveCart: "Remove",
         cartTotalLabel: "Estimated Total:",
-        cartPostServiceNote: "Fixed-price services are summed above. For other services without a preset amount, the price is determined after completing the service.",
+        variedPriceSuffix: "variable price (quoted after work)",
+        cartPostServiceNote: "Fixed-price services are summed above. Varied prices are indicated after completing the work.",
         paymentNoteHtml: "Payments accepted via <strong>POS</strong> and <strong>PayPal</strong>.",
         tagService: "Service",
         tagLoyalty: "Loyalty",
@@ -844,12 +876,18 @@
         htmlLang: "es",
         docTitle: "AKAD Mobile Mechanics — Cola de Órdenes y Servicios",
         subtitle: "Turnos y Cola de Atención",
+        locationLink: "📍 Ubicación AKAD · Ver en Google Maps",
+        locationInfoLabel: "Ubicación",
+        locationChipText: "Ver en Google Maps 📍",
+        smsChipText: "SMS",
+        smsClientMessage: "Hola, vi su portal y quisiera comunicarme con ustedes por un caso / estoy interesado en sus servicios.",
+        waClientMessage: "Hola, vi su portal y quisiera comunicarme con ustedes por un caso / estoy interesado en sus servicios.",
         tabTurno: "1. Pedir Turno",
         tabCola: "2. Cola en Vivo",
         formTitle: "Tomar Turno",
         hoursLabel: "Horario de Atención",
         hoursValue: "Lun – Sáb · 8:30 AM – 6:00 PM",
-        phoneInfoLabel: "Teléfono",
+        phoneInfoLabel: "Teléfono / SMS",
         emailInfoLabel: "Correo",
         lblNombre: "Nombre *",
         phNombre: "Ej. Carlos Pérez",
@@ -866,7 +904,8 @@
         btnAddCart: "+ Agregar al carrito",
         btnRemoveCart: "Quitar",
         cartTotalLabel: "Total estimado:",
-        cartPostServiceNote: "Se suman los servicios con monto fijo. Si eliges otros servicios sin monto previo, el precio se define luego de finalizar el servicio.",
+        variedPriceSuffix: "precio variado (indicado luego del trabajo)",
+        cartPostServiceNote: "Se suman los servicios con monto fijo; el precio variado se indica luego de realizar el trabajo.",
         paymentNoteHtml: "Pagos aceptados por <strong>POS</strong> y <strong>PayPal</strong>.",
         tagService: "Servicio",
         tagLoyalty: "Lealtad",
@@ -1177,7 +1216,13 @@
         `;
       }).join("");
 
-      totalEl.textContent = hasVariable ? `$${total} +` : `$${total}`;
+      if (hasVariable && total > 0) {
+        totalEl.textContent = `$${total} + ${d.variedPriceSuffix}`;
+      } else if (hasVariable) {
+        totalEl.textContent = d.variedPriceSuffix;
+      } else {
+        totalEl.textContent = `$${total}`;
+      }
     }
 
     function renderServicesCatalog() {
@@ -1241,12 +1286,20 @@
       };
 
       setText("tSubtitle", d.subtitle);
+      setText("tLocationLink", d.locationLink);
+      setText("tLocationInfoLabel", d.locationInfoLabel);
+      setText("tLocationChipLink", d.locationChipText);
+      document.getElementById("tLocationLink").href = AKAD_MAPS_URL;
+      document.getElementById("tLocationChipLink").href = AKAD_MAPS_URL;
+
       setText("tabBtnTurno", d.tabTurno);
       setText("tabBtnCola", d.tabCola);
       setText("tFormTitle", d.formTitle);
       setText("tHoursLabel", d.hoursLabel);
       setText("tHoursValue", d.hoursValue);
       setText("tPhoneInfoLabel", d.phoneInfoLabel);
+      setText("tSmsChipLink", d.smsChipText);
+      document.getElementById("tSmsChipLink").href = `sms:+1${AKAD_SMS_NUMBER}?body=${encodeURIComponent(d.smsClientMessage)}`;
       setText("tEmailInfoLabel", d.emailInfoLabel);
       setText("lblNombre", d.lblNombre);
       setPh("cliNombre", d.phNombre);
@@ -1273,11 +1326,7 @@
       setText("thApproxTime", d.thApproxTime);
       setText("thStatus", d.thStatus);
 
-      const waGreeting = encodeURIComponent(
-        currentLang === "es"
-          ? "Hola, te hablamos desde AKAD Mobile Mechanics."
-          : "Hello, we are reaching out from AKAD Mobile Mechanics."
-      );
+      const waGreeting = encodeURIComponent(d.waClientMessage);
       document.getElementById("floatingWaBtn").href = `https://wa.me/${AKAD_WA_NUMBER}?text=${waGreeting}`;
 
       renderCorreoAkad();
@@ -1633,9 +1682,9 @@
         return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida por un monto de $${summary.fixedTotal}.`;
       }
       if (summary.hasFixedPrice && summary.hasPostServicePrice) {
-        return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida (servicios fijos por $${summary.fixedTotal}; los demás servicios se cotizan al finalizar el servicio).`;
+        return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida por $${summary.fixedTotal} + precio variado (indicado luego del trabajo).`;
       }
-      return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida; el precio se indicará luego de finalizar el servicio.`;
+      return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida; tiene precio variado (indicado luego del trabajo).`;
     }
 
     function renderTablaTaller() {
@@ -1661,6 +1710,7 @@
         const summary = getCartSummaryText(meta.items, "es");
         const msgCliente = construirMensajeCliente(o, meta);
         const msgWa = encodeURIComponent(msgCliente);
+        const msgSms = encodeURIComponent(msgCliente);
 
         return `
           <tr>
@@ -1682,6 +1732,7 @@
             <td style="display:flex;gap:5px;flex-wrap:wrap;">
               <button class="btn btn-primary btn-sm" type="button" onclick="abrirEditor('${esc(o.id)}')">Editar</button>
               <button class="btn btn-soft btn-sm" type="button" onclick="verHistorial('${esc(o.id)}')">Historial</button>
+              <a class="btn btn-sms btn-sm" href="sms:+1${AKAD_SMS_NUMBER}?body=${msgSms}">SMS</a>
               ${waNum ? `<a class="btn btn-wa btn-sm" target="_blank" rel="noopener noreferrer" href="https://wa.me/${waNum}?text=${msgWa}">WhatsApp</a>` : ""}
             </td>
           </tr>
