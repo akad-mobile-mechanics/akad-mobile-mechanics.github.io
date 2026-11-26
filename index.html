@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AKAD Mobile Mechanics — Fila de Órdenes y Taller</title>
+  <title>AKAD Mobile Mechanics — Queue & Shop Panel</title>
   <style>
     :root {
       --bg: #111114;
@@ -15,24 +15,59 @@
       --accent-dark: #C84D12;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: #F5F2EE; min-height: 100vh; padding: 18px 14px 48px; }
+    body { background: var(--bg); color: #F5F2EE; min-height: 100vh; padding: 18px 14px 52px; }
     .wrap { max-width: 1120px; margin: 0 auto; }
 
     .topbar {
       background: linear-gradient(135deg, #0E0E11 0%, #221914 68%, var(--accent) 160%);
-      border: 1px solid rgba(242, 101, 34, 0.35);
+      border: 1px solid rgba(242, 101, 34, 0.38);
       border-radius: 16px;
       padding: 16px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       flex-wrap: wrap;
       margin-bottom: 18px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
-    .brand h1 { font-size: 19px; font-weight: 800; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo-slot {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .logo-slot img { width: 100%; height: 100%; object-fit: contain; display: none; }
+    .logo-slot.has-img img { display: block; }
+    .logo-slot.has-img .default-logo { display: none; }
+    .brand h1 { font-size: 19px; font-weight: 800; letter-spacing: 0.2px; }
     .brand p { font-size: 12.5px; color: #E7DFD8; margin-top: 2px; }
+
+    .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .lang-switch {
+      display: inline-flex;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.25);
+    }
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: #E7DFD8;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .lang-btn.active { background: #FFF; color: var(--ink); }
 
     .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
     .tab-btn {
@@ -60,6 +95,45 @@
       margin-bottom: 16px;
     }
     .card-light h2 { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .service-item {
+      border: 1px solid var(--border);
+      background: #FAF8F5;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .service-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .service-title { font-size: 14px; font-weight: 800; color: var(--ink); }
+    .service-price {
+      background: #FFF7ED;
+      color: var(--accent-dark);
+      border: 1px solid #FDBA74;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .service-tag {
+      background: #EEF2FF;
+      color: #1E40AF;
+      font-weight: 800;
+      font-size: 11.5px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .service-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+    .pay-note { font-size: 12px; color: var(--muted); margin-top: 12px; font-weight: 600; }
 
     .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
     .field { margin-bottom: 12px; }
@@ -152,14 +226,15 @@
       margin-left: 6px;
     }
 
-    .editor-box {
+    .editor-box, .logo-admin-box {
       background: #FAF8F5;
       border: 1.5px solid var(--accent);
       border-radius: 14px;
       padding: 16px;
       margin-top: 14px;
-      display: none;
     }
+    .editor-box { display: none; }
+
     .obs-list {
       margin-top: 10px;
       display: flex;
@@ -193,35 +268,51 @@
   <div class="wrap">
     <header class="topbar">
       <div class="brand">
-        <h1>AKAD Mobile Mechanics</h1>
-        <p>Turnos, Cola de Atención y Registro de Taller</p>
+        <div class="logo-slot" id="brandLogoSlot">
+          <img id="brandLogoImg" alt="AKAD Logo" />
+          <svg class="default-logo" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#F26522" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>AKAD Mobile Mechanics</h1>
+          <p id="tSubtitle">Turn Queue, Live Status &amp; Shop Control</p>
+        </div>
       </div>
-      <nav class="nav-tabs">
-        <button class="tab-btn active" type="button" onclick="switchTab('tabTurno', this)">1. Pedir Turno</button>
-        <button class="tab-btn" type="button" onclick="switchTab('tabCola', this)">2. Cola en Vivo</button>
-        <button class="tab-btn" type="button" onclick="switchTab('tabTaller', this)">3. Panel Taller</button>
-      </nav>
+
+      <div class="header-controls">
+        <div class="lang-switch" role="group" aria-label="Language switcher">
+          <button type="button" class="lang-btn active" id="btnLangEn" onclick="setLang('en')">EN</button>
+          <button type="button" class="lang-btn" id="btnLangEs" onclick="setLang('es')">ES</button>
+        </div>
+
+        <nav class="nav-tabs">
+          <button class="tab-btn active" type="button" id="tabBtnTurno" onclick="switchTab('tabTurno', this)">1. Book Turn</button>
+          <button class="tab-btn" type="button" id="tabBtnCola" onclick="switchTab('tabCola', this)">2. Live Queue</button>
+          <button class="tab-btn" type="button" id="tabBtnTaller" onclick="switchTab('tabTaller', this)">3. Shop Panel</button>
+        </nav>
+      </div>
     </header>
 
-    <!-- 1. FORMULARIO RÁPIDO DEL CLIENTE -->
+    <!-- 1. QUICK CLIENT FORM + AKAD SERVICES -->
     <section id="tabTurno" class="panel active">
       <div class="card-light">
-        <h2>Tomar Turno</h2>
+        <h2 id="tFormTitle">Request a Turn</h2>
         <form id="formTurno" onsubmit="crearTurno(event)">
           <div class="grid-2">
             <div class="field">
-              <label for="cliNombre">Nombre *</label>
-              <input type="text" id="cliNombre" required placeholder="Ej. Carlos Pérez" />
+              <label for="cliNombre" id="lblNombre">Name *</label>
+              <input type="text" id="cliNombre" required />
             </div>
             <div class="field">
-              <label for="cliTelefono">Teléfono / WhatsApp *</label>
-              <input type="tel" id="cliTelefono" required placeholder="Ej. +1 407 555 0199" />
+              <label for="cliTelefono" id="lblTelefono">Phone / WhatsApp *</label>
+              <input type="tel" id="cliTelefono" required placeholder="+1 407 555 0199" />
             </div>
           </div>
 
           <div class="grid-2">
             <div class="field">
-              <label for="cliHoraAprox">Hora aproximada de llegada *</label>
+              <label for="cliHoraAprox" id="lblHora">Approximate arrival time *</label>
               <select id="cliHoraAprox" required>
                 <option value="08:00 AM">08:00 AM</option>
                 <option value="09:00 AM">09:00 AM</option>
@@ -234,53 +325,107 @@
                 <option value="04:00 PM">04:00 PM</option>
                 <option value="05:00 PM">05:00 PM</option>
               </select>
-              <div class="notice-box">
-                La hora seleccionada es aproximada y está sujeta a cambios o reprogramación. Te notificaremos por WhatsApp al tomar tu orden.
+              <div class="notice-box" id="tTimeNotice">
+                Selected time is approximate and subject to change or rescheduling. We will notify you on WhatsApp when we take your order.
               </div>
             </div>
 
             <div class="field">
-              <label for="cliVehiculo">Vehículo (Opcional)</label>
-              <input type="text" id="cliVehiculo" placeholder="Ej. Toyota Corolla 2019 (o deja en blanco)" />
+              <label for="cliVehiculo" id="lblVehiculo">Vehicle (Optional)</label>
+              <input type="text" id="cliVehiculo" />
             </div>
           </div>
 
-          <button class="btn btn-primary" id="btnCrearTurno" type="submit">Generar Turno y Ver Cola</button>
+          <button class="btn btn-primary" id="btnCrearTurno" type="submit">Generate Turn &amp; View Queue</button>
           <div class="status-msg" id="turnoStatusMsg"></div>
         </form>
 
         <div class="ticket-box" id="ticketBox">
-          <div>Turno registrado:</div>
+          <div id="tTicketRegistered">Turn registered:</div>
           <div class="ticket-code" id="ticketCodigo"></div>
-          <p style="font-size:12.5px;margin-top:4px;">
-            Guarda este código para consultar tu estatus en la <strong>Cola en Vivo</strong>. Te avisaremos por WhatsApp al revisar o reprogramar tu hora.
+          <p style="font-size:12.5px;margin-top:4px;" id="tTicketHelp">
+            Save this code to check your status in the Live Queue. We will notify you on WhatsApp when we review or reschedule your time.
           </p>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-soft btn-sm" type="button" onclick="copiarCodigoTicket()">Copiar código</button>
-            <button class="btn btn-primary btn-sm" type="button" onclick="irAColaConCodigo()">Ver en la Cola</button>
+            <button class="btn btn-soft btn-sm" id="btnCopyCode" type="button" onclick="copiarCodigoTicket()">Copy code</button>
+            <button class="btn btn-primary btn-sm" id="btnViewQueue" type="button" onclick="irAColaConCodigo()">View in Queue</button>
           </div>
         </div>
       </div>
+
+      <div class="card-light">
+        <h2 id="tServicesTitle">AKAD Services</h2>
+        <div class="services-grid">
+          <div class="service-item">
+            <div class="service-top">
+              <div class="service-title" id="srvDiagShopTitle">Shop Diagnostics &amp; Scanning</div>
+              <span class="service-price">$50</span>
+            </div>
+            <p class="service-desc" id="srvDiagShopDesc">In-shop scan and diagnostic check.</p>
+          </div>
+
+          <div class="service-item">
+            <div class="service-top">
+              <div class="service-title" id="srvDiagMobTitle">Mobile Diagnostic &amp; Repair</div>
+              <span class="service-price">$100</span>
+            </div>
+            <p class="service-desc" id="srvDiagMobDesc">On-site mobile diagnostic and repair service.</p>
+          </div>
+
+          <div class="service-item">
+            <div class="service-top">
+              <div class="service-title" id="srvBrakesTitle">Brake Repair</div>
+              <span class="service-tag" id="srvBrakesTag">Service</span>
+            </div>
+            <p class="service-desc" id="srvBrakesDesc">Brake inspection and repair service.</p>
+          </div>
+
+          <div class="service-item">
+            <div class="service-top">
+              <div class="service-title" id="srvElecTitle">Electrical Repair</div>
+              <span class="service-tag" id="srvElecTag">Service</span>
+            </div>
+            <p class="service-desc" id="srvElecDesc">Automotive electrical system troubleshooting and repair.</p>
+          </div>
+
+          <div class="service-item">
+            <div class="service-top">
+              <div class="service-title" id="srvSuspTitle">Suspension Repair</div>
+              <span class="service-tag" id="srvSuspTag">Service</span>
+            </div>
+            <p class="service-desc" id="srvSuspDesc">Suspension components inspection and repair.</p>
+          </div>
+
+          <div class="service-item">
+            <div class="service-top">
+              <div class="service-title" id="srvOilTitle">Oil Change Loyalty Program</div>
+              <span class="service-tag" id="srvOilTag">Loyalty</span>
+            </div>
+            <p class="service-desc" id="srvOilDesc">Recurring oil change loyalty program for returning customers.</p>
+          </div>
+        </div>
+        <p class="pay-note" id="tPaymentNote">Payments accepted via POS and PayPal.</p>
+      </div>
     </section>
 
-    <!-- 2. COLA PÚBLICA (SIN DATOS PERSONALES) -->
+    <!-- 2. PUBLIC QUEUE (NO PERSONAL DATA) -->
     <section id="tabCola" class="panel">
       <div class="card-light">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <h2 style="margin-bottom:0;">Cola de Órdenes</h2>
-          <button class="btn btn-soft btn-sm" type="button" onclick="cargarColaPublica(true)">Actualizar cola</button>
+          <h2 style="margin-bottom:0;" id="tQueueTitle">Orders Queue</h2>
+          <button class="btn btn-soft btn-sm" id="btnRefreshQueue" type="button" onclick="cargarColaPublica(true)">Refresh queue</button>
         </div>
         <div class="field">
-          <label for="buscarCola">Buscar por código de orden</label>
-          <input type="text" id="buscarCola" placeholder="Ej. ORD-1001" oninput="renderColaPublica()" />
+          <label for="buscarCola" id="lblSearchQueue">Search by order code</label>
+          <input type="text" id="buscarCola" placeholder="ORD-1001" oninput="renderColaPublica()" />
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Orden</th>
-                <th>Hora Aprox.</th>
-                <th>Estatus</th>
+                <th id="thOrder">Order</th>
+                <th id="thApproxTime">Approx. Time</th>
+                <th id="thStatus">Status</th>
               </tr>
             </thead>
             <tbody id="colaBody"></tbody>
@@ -290,48 +435,47 @@
       </div>
     </section>
 
-    <!-- 3. PANEL DE TALLER (MODELO, PLACA, OBSERVACIONES + HISTORIAL) -->
+    <!-- 3. SHOP / ADMIN PANEL -->
     <section id="tabTaller" class="panel">
       <div class="card-light">
-        <h2>Control de Taller e Historial</h2>
+        <h2 id="tPanelTitle">Shop Control &amp; History</h2>
 
         <div id="loginTallerBox" style="max-width:420px;margin-bottom:16px;">
           <div class="field">
-            <label for="adminPinInput">PIN del taller</label>
-            <input type="password" id="adminPinInput" placeholder="Ingresa el PIN (ej. AKAD2026)" />
+            <label for="adminPinInput" id="lblPin">Shop PIN</label>
+            <input type="password" id="adminPinInput" placeholder="AKAD2026" />
           </div>
-          <button class="btn btn-primary btn-sm" type="button" onclick="cargarPanelTaller(true)">Entrar al Panel</button>
+          <button class="btn btn-primary btn-sm" id="btnEnterPanel" type="button" onclick="cargarPanelTaller(true)">Enter Panel</button>
           <div class="status-msg" id="tallerStatusMsg"></div>
         </div>
 
         <div id="tallerWorkspace" style="display:none;">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12.5px;color:var(--muted);font-weight:700;">Conectado a Google Sheets</span>
+            <span style="font-size:12.5px;color:var(--muted);font-weight:700;" id="tConnectedLabel">Connected to Google Sheets</span>
             <div style="display:flex;gap:8px;">
-              <button class="btn btn-soft btn-sm" type="button" onclick="cargarPanelTaller(false)">Refrescar órdenes</button>
-              <button class="btn btn-soft btn-sm" type="button" onclick="cerrarSesionTaller()">Bloquear</button>
+              <button class="btn btn-soft btn-sm" id="btnReloadOrders" type="button" onclick="cargarPanelTaller(false)">Refresh orders</button>
+              <button class="btn btn-soft btn-sm" id="btnLockPanel" type="button" onclick="cerrarSesionTaller()">Lock</button>
             </div>
           </div>
 
-          <div class="grid-2" style="margin-bottom:12px;">
+          <!-- ADMIN LOGO UPLOADER -->
+          <div class="logo-admin-box">
+            <h3 style="font-size:14.5px;font-weight:800;margin-bottom:8px;" id="tLogoAdminTitle">Brand Logo (Admin)</h3>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input type="file" id="adminLogoFile" accept="image/*" style="max-width:280px;" onchange="subirLogoAdmin(event)" />
+              <button class="btn btn-soft btn-sm" id="btnResetLogo" type="button" onclick="resetearLogoAdmin()">Reset default logo</button>
+              <span class="status-msg" id="logoStatusMsg" style="margin-top:0;"></span>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top:14px;margin-bottom:12px;">
             <div class="field" style="margin-bottom:0;">
-              <label for="filtroTaller">Filtrar por Orden, Cliente, Teléfono, Modelo o Placa</label>
-              <input type="text" id="filtroTaller" placeholder="Escribe placa, teléfono, nombre o código..." oninput="renderTablaTaller()" />
+              <label for="filtroTaller" id="lblFilterOrders">Filter by Order, Client, Phone, Model or Plate</label>
+              <input type="text" id="filtroTaller" oninput="renderTablaTaller()" />
             </div>
             <div class="field" style="margin-bottom:0;">
-              <label for="filtroEstatusTaller">Filtrar por estatus</label>
-              <select id="filtroEstatusTaller" onchange="renderTablaTaller()">
-                <option value="TODOS">Todos</option>
-                <option value="En fila">En fila</option>
-                <option value="Aceptada">Aceptada</option>
-                <option value="Reprogramada">Reprogramada</option>
-                <option value="En revisión">En revisión</option>
-                <option value="Esperando aprobación">Esperando aprobación</option>
-                <option value="En reparación">En reparación</option>
-                <option value="Listo para retirar">Listo para retirar</option>
-                <option value="Completada">Completada</option>
-                <option value="Rechazada">Rechazada</option>
-              </select>
+              <label for="filtroEstatusTaller" id="lblFilterStatus">Filter by status</label>
+              <select id="filtroEstatusTaller" onchange="renderTablaTaller()"></select>
             </div>
           </div>
 
@@ -339,79 +483,69 @@
             <table>
               <thead>
                 <tr>
-                  <th>Orden / Hora</th>
-                  <th>Cliente / Teléfono</th>
-                  <th>Modelo / Placa</th>
-                  <th>Estatus</th>
-                  <th>Acciones</th>
+                  <th id="thAdmOrder">Order / Time</th>
+                  <th id="thAdmClient">Client / Phone</th>
+                  <th id="thAdmVehicle">Model / Plate</th>
+                  <th id="thAdmStatus">Status</th>
+                  <th id="thAdmActions">Actions</th>
                 </tr>
               </thead>
               <tbody id="tallerBody"></tbody>
             </table>
           </div>
 
-          <!-- EDITOR RÁPIDO: MODELO, PLACA, ESTATUS, HORA Y OBSERVACIONES -->
+          <!-- QUICK EDITOR: MODEL, PLATE, STATUS, TIME & OBSERVATIONS -->
           <div class="editor-box" id="editorOrdenBox">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;">
-              <h3 style="font-size:15px;font-weight:800;">Editando Orden: <span id="editOrdenId"></span></h3>
-              <button class="btn btn-soft btn-sm" type="button" onclick="cerrarEditor()">Cerrar</button>
+              <h3 style="font-size:15px;font-weight:800;"><span id="tEditingPrefix">Editing Order:</span> <span id="editOrdenId"></span></h3>
+              <button class="btn btn-soft btn-sm" id="btnCloseEditor" type="button" onclick="cerrarEditor()">Close</button>
             </div>
 
             <div class="grid-2">
               <div class="field">
-                <label for="editModelo">Modelo del vehículo</label>
-                <input type="text" id="editModelo" placeholder="Ej. Mazda 3 2018" />
+                <label for="editModelo" id="lblEditModel">Vehicle model</label>
+                <input type="text" id="editModelo" />
               </div>
               <div class="field">
-                <label for="editPlaca">Placa</label>
-                <input type="text" id="editPlaca" placeholder="Ej. ABC-1234" />
+                <label for="editPlaca" id="lblEditPlate">Plate</label>
+                <input type="text" id="editPlaca" />
               </div>
               <div class="field">
-                <label for="editEstatus">Estatus</label>
-                <select id="editEstatus">
-                  <option value="En fila">En fila</option>
-                  <option value="Aceptada">Aceptada</option>
-                  <option value="Reprogramada">Reprogramada</option>
-                  <option value="En revisión">En revisión</option>
-                  <option value="Esperando aprobación">Esperando aprobación</option>
-                  <option value="En reparación">En reparación</option>
-                  <option value="Listo para retirar">Listo para retirar</option>
-                  <option value="Completada">Completada</option>
-                  <option value="Rechazada">Rechazada</option>
-                </select>
+                <label for="editEstatus" id="lblEditStatus">Status</label>
+                <select id="editEstatus"></select>
               </div>
               <div class="field">
-                <label for="editHora">Hora (ajustable si se reprograma)</label>
-                <input type="text" id="editHora" placeholder="Ej. 10:30 AM" />
+                <label for="editHora" id="lblEditTime">Time (adjustable if rescheduled)</label>
+                <input type="text" id="editHora" />
               </div>
             </div>
 
-            <button class="btn btn-primary btn-sm" id="btnGuardarOrden" type="button" onclick="guardarCambiosOrden()">Guardar Modelo / Placa / Estatus</button>
+            <button class="btn btn-primary btn-sm" id="btnGuardarOrden" type="button" onclick="guardarCambiosOrden()">Save Model / Plate / Status</button>
             <span class="status-msg" id="editorStatusMsg" style="margin-left:8px;"></span>
 
             <hr style="margin:14px 0;border:none;border-top:1px solid var(--border);" />
 
-            <h4 style="font-size:13.5px;font-weight:800;margin-bottom:8px;">Observaciones del taller (registro interno)</h4>
+            <h4 style="font-size:13.5px;font-weight:800;margin-bottom:8px;" id="tObsTitle">Shop observations (internal log)</h4>
             <div class="grid-2">
               <div class="field" style="margin-bottom:6px;">
-                <label for="obsMecanico">Mecánico (opcional)</label>
-                <input type="text" id="obsMecanico" placeholder="Ej. Luis" />
+                <label for="obsMecanico" id="lblObsMech">Mechanic (optional)</label>
+                <input type="text" id="obsMecanico" />
               </div>
               <div class="field" style="margin-bottom:6px;">
-                <label for="obsTexto">Nueva observación</label>
-                <input type="text" id="obsTexto" placeholder="Ej. Fuga en manguera superior, falta confirmar repuesto" />
+                <label for="obsTexto" id="lblObsText">New observation</label>
+                <input type="text" id="obsTexto" />
               </div>
             </div>
-            <button class="btn btn-soft btn-sm" id="btnAgregarObs" type="button" onclick="agregarObservacion()">+ Agregar Observación</button>
+            <button class="btn btn-soft btn-sm" id="btnAgregarObs" type="button" onclick="agregarObservacion()">+ Add Observation</button>
 
             <div class="obs-list" id="obsLista"></div>
           </div>
 
-          <!-- HISTORIAL POR TELÉFONO O PLACA -->
+          <!-- HISTORY BY PHONE OR PLATE -->
           <div class="history-box" id="historialBox">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <h3 style="font-size:14.5px;font-weight:800;color:#0F172A;">Historial de Visitas: <span id="historialTitulo"></span></h3>
-              <button class="btn btn-soft btn-sm" type="button" onclick="document.getElementById('historialBox').style.display='none'">Cerrar</button>
+              <h3 style="font-size:14.5px;font-weight:800;color:#0F172A;"><span id="tHistPrefix">Visit History:</span> <span id="historialTitulo"></span></h3>
+              <button class="btn btn-soft btn-sm" id="btnCloseHist" type="button" onclick="document.getElementById('historialBox').style.display='none'">Close</button>
             </div>
             <div id="historialContenido" style="font-size:12.5px;color:#1E293B;"></div>
           </div>
@@ -424,11 +558,433 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwHgoFWSWlAZwQaLXl7HxNTqQwN-eyY2HKk7tEayRckIz9xygPxSp8aqcvKCV8gKMw/exec";
     const CACHE_QUEUE_KEY = "akad_queue_cache_v1";
     const PIN_SESSION_KEY = "akad_taller_pin_v1";
+    const LOGO_STORAGE_KEY = "akad_custom_logo_v1";
+    const LANG_STORAGE_KEY = "akad_lang_v1";
 
+    const STATUS_KEYS = [
+      "En fila", "Aceptada", "Reprogramada", "En revisión",
+      "Esperando aprobación", "En reparación", "Listo para retirar",
+      "Completada", "Rechazada"
+    ];
+
+    const I18N = {
+      en: {
+        htmlLang: "en",
+        docTitle: "AKAD Mobile Mechanics — Queue & Shop Panel",
+        subtitle: "Turn Queue, Live Status & Shop Control",
+        tabTurno: "1. Book Turn",
+        tabCola: "2. Live Queue",
+        tabTaller: "3. Shop Panel",
+        formTitle: "Request a Turn",
+        lblNombre: "Name *",
+        phNombre: "e.g. John Doe",
+        lblTelefono: "Phone / WhatsApp *",
+        lblHora: "Approximate arrival time *",
+        timeNotice: "Selected time is approximate and subject to change or rescheduling. We will notify you on WhatsApp when we take your order.",
+        lblVehiculo: "Vehicle (Optional)",
+        phVehiculo: "e.g. Toyota Corolla 2019 (or leave blank)",
+        btnCrearTurno: "Generate Turn & View Queue",
+        submittingTurn: "Registering your turn...",
+        errCreateTurn: "Could not register the turn.",
+        ticketRegistered: "Turn registered:",
+        ticketHelp: "Save this code to check your status in the Live Queue. We will notify you on WhatsApp when we review or reschedule your time.",
+        btnCopyCode: "Copy code",
+        btnViewQueue: "View in Queue",
+        servicesTitle: "AKAD Services",
+        srvDiagShopTitle: "Shop Diagnostics & Scanning",
+        srvDiagShopDesc: "In-shop scan and diagnostic check.",
+        srvDiagMobTitle: "Mobile Diagnostic & Repair",
+        srvDiagMobDesc: "On-site mobile diagnostic and repair service.",
+        srvBrakesTitle: "Brake Repair",
+        srvBrakesTag: "Service",
+        srvBrakesDesc: "Brake inspection and repair service.",
+        srvElecTitle: "Electrical Repair",
+        srvElecTag: "Service",
+        srvElecDesc: "Automotive electrical system troubleshooting and repair.",
+        srvSuspTitle: "Suspension Repair",
+        srvSuspTag: "Service",
+        srvSuspDesc: "Suspension components inspection and repair.",
+        srvOilTitle: "Oil Change Loyalty Program",
+        srvOilTag: "Loyalty",
+        srvOilDesc: "Recurring oil change loyalty program for returning customers.",
+        paymentNote: "Payments accepted via POS and PayPal.",
+        queueTitle: "Orders Queue",
+        btnRefreshQueue: "Refresh queue",
+        lblSearchQueue: "Search by order code",
+        thOrder: "Order",
+        thApproxTime: "Approx. Time",
+        thStatus: "Status",
+        emptyQueue: "No orders in the queue to display.",
+        updatingQueue: "Updating queue...",
+        errQueue: "Could not refresh the queue.",
+        panelTitle: "Shop Control & History",
+        lblPin: "Shop PIN",
+        btnEnterPanel: "Enter Panel",
+        errMissingPin: "Enter the shop PIN.",
+        loadingOrders: "Loading orders...",
+        errInvalidPin: "Invalid PIN.",
+        errPanel: "Could not load panel.",
+        connectedLabel: "Connected to Google Sheets",
+        btnReloadOrders: "Refresh orders",
+        btnLockPanel: "Lock",
+        logoAdminTitle: "Brand Logo (Admin)",
+        btnResetLogo: "Reset default logo",
+        logoUpdated: "Logo updated.",
+        logoReset: "Default logo restored.",
+        logoErr: "Could not load image.",
+        lblFilterOrders: "Filter by Order, Client, Phone, Model or Plate",
+        phFilterOrders: "Type plate, phone, name or code...",
+        lblFilterStatus: "Filter by status",
+        allStatuses: "All",
+        thAdmOrder: "Order / Time",
+        thAdmClient: "Client / Phone",
+        thAdmVehicle: "Model / Plate",
+        thAdmStatus: "Status",
+        thAdmActions: "Actions",
+        emptyAdmin: "No matching orders.",
+        visitsBadge: (n) => `${n} visits`,
+        noModel: "No model",
+        platePrefix: "Plate:",
+        btnEdit: "Edit",
+        btnHistory: "History",
+        editingPrefix: "Editing Order:",
+        btnCloseEditor: "Close",
+        lblEditModel: "Vehicle model",
+        lblEditPlate: "Plate",
+        lblEditStatus: "Status",
+        lblEditTime: "Time (adjustable if rescheduled)",
+        btnGuardarOrden: "Save Model / Plate / Status",
+        saving: "Saving...",
+        saved: "Saved.",
+        errSave: "Could not save.",
+        obsTitle: "Shop observations (internal log)",
+        lblObsMech: "Mechanic (optional)",
+        phObsMech: "e.g. Luis",
+        lblObsText: "New observation",
+        phObsText: "e.g. Upper hose leak, waiting to confirm part",
+        btnAgregarObs: "+ Add Observation",
+        addingObs: "Adding observation...",
+        obsSaved: "Observation saved.",
+        errObs: "Could not add observation.",
+        noObs: "No observations recorded yet.",
+        histPrefix: "Visit History:",
+        btnCloseHist: "Close",
+        histVehicle: "Vehicle:",
+        histPlate: "Plate:",
+        statuses: {
+          "En fila": "In Queue",
+          "Aceptada": "Accepted",
+          "Reprogramada": "Rescheduled",
+          "En revisión": "In Inspection",
+          "Esperando aprobación": "Awaiting Approval",
+          "En reparación": "In Repair",
+          "Listo para retirar": "Ready for Pickup",
+          "Completada": "Completed",
+          "Rechazada": "Rejected"
+        }
+      },
+      es: {
+        htmlLang: "es",
+        docTitle: "AKAD Mobile Mechanics — Cola de Órdenes y Taller",
+        subtitle: "Turnos, Cola de Atención y Registro de Taller",
+        tabTurno: "1. Pedir Turno",
+        tabCola: "2. Cola en Vivo",
+        tabTaller: "3. Panel Taller",
+        formTitle: "Tomar Turno",
+        lblNombre: "Nombre *",
+        phNombre: "Ej. Carlos Pérez",
+        lblTelefono: "Teléfono / WhatsApp *",
+        lblHora: "Hora aproximada de llegada *",
+        timeNotice: "La hora seleccionada es aproximada y está sujeta a cambios o reprogramación. Te notificaremos por WhatsApp al tomar tu orden.",
+        lblVehiculo: "Vehículo (Opcional)",
+        phVehiculo: "Ej. Toyota Corolla 2019 (o deja en blanco)",
+        btnCrearTurno: "Generar Turno y Ver Cola",
+        submittingTurn: "Registrando tu turno...",
+        errCreateTurn: "No se pudo registrar el turno.",
+        ticketRegistered: "Turno registrado:",
+        ticketHelp: "Guarda este código para consultar tu estatus en la Cola en Vivo. Te avisaremos por WhatsApp al revisar o reprogramar tu hora.",
+        btnCopyCode: "Copiar código",
+        btnViewQueue: "Ver en la Cola",
+        servicesTitle: "Servicios de AKAD",
+        srvDiagShopTitle: "Diagnóstico y Escaneo en Taller",
+        srvDiagShopDesc: "Escaneo y revisión diagnóstica en taller.",
+        srvDiagMobTitle: "Diagnóstico y Reparación Móvil",
+        srvDiagMobDesc: "Servicio de diagnóstico y reparación a domicilio.",
+        srvBrakesTitle: "Reparación de Frenos",
+        srvBrakesTag: "Servicio",
+        srvBrakesDesc: "Revisión y reparación del sistema de frenos.",
+        srvElecTitle: "Reparación Eléctrica",
+        srvElecTag: "Servicio",
+        srvElecDesc: "Diagnóstico y reparación eléctrica automotriz.",
+        srvSuspTitle: "Reparación de Suspensión",
+        srvSuspTag: "Servicio",
+        srvSuspDesc: "Revisión y reparación de componentes de suspensión.",
+        srvOilTitle: "Programa de Lealtad de Cambio de Aceite",
+        srvOilTag: "Lealtad",
+        srvOilDesc: "Programa de fidelidad en cambios de aceite para clientes recurrentes.",
+        paymentNote: "Pagos aceptados por POS y PayPal.",
+        queueTitle: "Cola de Órdenes",
+        btnRefreshQueue: "Actualizar cola",
+        lblSearchQueue: "Buscar por código de orden",
+        thOrder: "Orden",
+        thApproxTime: "Hora Aprox.",
+        thStatus: "Estatus",
+        emptyQueue: "No hay órdenes en la cola por mostrar.",
+        updatingQueue: "Actualizando cola...",
+        errQueue: "No se pudo actualizar la cola.",
+        panelTitle: "Control de Taller e Historial",
+        lblPin: "PIN del taller",
+        btnEnterPanel: "Entrar al Panel",
+        errMissingPin: "Ingresa el PIN del taller.",
+        loadingOrders: "Cargando órdenes...",
+        errInvalidPin: "PIN inválido.",
+        errPanel: "Error al cargar el panel.",
+        connectedLabel: "Conectado a Google Sheets",
+        btnReloadOrders: "Refrescar órdenes",
+        btnLockPanel: "Bloquear",
+        logoAdminTitle: "Logo de Marca (Admin)",
+        btnResetLogo: "Restaurar logo por defecto",
+        logoUpdated: "Logo actualizado.",
+        logoReset: "Logo por defecto restaurado.",
+        logoErr: "No se pudo cargar la imagen.",
+        lblFilterOrders: "Filtrar por Orden, Cliente, Teléfono, Modelo o Placa",
+        phFilterOrders: "Escribe placa, teléfono, nombre o código...",
+        lblFilterStatus: "Filtrar por estatus",
+        allStatuses: "Todos",
+        thAdmOrder: "Orden / Hora",
+        thAdmClient: "Cliente / Teléfono",
+        thAdmVehicle: "Modelo / Placa",
+        thAdmStatus: "Estatus",
+        thAdmActions: "Acciones",
+        emptyAdmin: "Sin resultados.",
+        visitsBadge: (n) => `${n} visitas`,
+        noModel: "Sin modelo",
+        platePrefix: "Placa:",
+        btnEdit: "Editar",
+        btnHistory: "Historial",
+        editingPrefix: "Editando Orden:",
+        btnCloseEditor: "Cerrar",
+        lblEditModel: "Modelo del vehículo",
+        lblEditPlate: "Placa",
+        lblEditStatus: "Estatus",
+        lblEditTime: "Hora (ajustable si se reprograma)",
+        btnGuardarOrden: "Guardar Modelo / Placa / Estatus",
+        saving: "Guardando...",
+        saved: "Guardado.",
+        errSave: "Error al guardar.",
+        obsTitle: "Observaciones del taller (registro interno)",
+        lblObsMech: "Mecánico (opcional)",
+        phObsMech: "Ej. Luis",
+        lblObsText: "Nueva observación",
+        phObsText: "Ej. Fuga en manguera superior, falta confirmar repuesto",
+        btnAgregarObs: "+ Agregar Observación",
+        addingObs: "Agregando observación...",
+        obsSaved: "Observación guardada.",
+        errObs: "Error al agregar observación.",
+        noObs: "Sin observaciones registradas aún.",
+        histPrefix: "Historial de Visitas:",
+        btnCloseHist: "Cerrar",
+        histVehicle: "Vehículo:",
+        histPlate: "Placa:",
+        statuses: {
+          "En fila": "En fila",
+          "Aceptada": "Aceptada",
+          "Reprogramada": "Reprogramada",
+          "En revisión": "En revisión",
+          "Esperando aprobación": "Esperando aprobación",
+          "En reparación": "En reparación",
+          "Listo para retirar": "Listo para retirar",
+          "Completada": "Completada",
+          "Rechazada": "Rechazada"
+        }
+      }
+    };
+
+    let currentLang = localStorage.getItem(LANG_STORAGE_KEY) === "es" ? "es" : "en";
     let colaPublica = cargarCacheCola();
     let ordenesAdmin = [];
     let ordenActivaId = null;
     let ultimoCodigoGenerado = "";
+
+    function t() {
+      return I18N[currentLang] || I18N.en;
+    }
+
+    function statusLabel(rawStatus) {
+      const key = String(rawStatus || "En fila").trim();
+      return (t().statuses && t().statuses[key]) || key;
+    }
+
+    function populateStatusSelects() {
+      const filterSel = document.getElementById("filtroEstatusTaller");
+      const editSel = document.getElementById("editEstatus");
+      const prevFilter = filterSel.value || "TODOS";
+      const prevEdit = editSel.value || "En fila";
+
+      filterSel.innerHTML = `<option value="TODOS">${esc(t().allStatuses)}</option>` +
+        STATUS_KEYS.map(k => `<option value="${esc(k)}">${esc(statusLabel(k))}</option>`).join("");
+      filterSel.value = prevFilter;
+
+      editSel.innerHTML = STATUS_KEYS.map(k => `<option value="${esc(k)}">${esc(statusLabel(k))}</option>`).join("");
+      editSel.value = STATUS_KEYS.includes(prevEdit) ? prevEdit : "En fila";
+    }
+
+    function applyTranslations() {
+      const d = t();
+      document.documentElement.lang = d.htmlLang;
+      document.title = d.docTitle;
+      document.getElementById("btnLangEn").classList.toggle("active", currentLang === "en");
+      document.getElementById("btnLangEs").classList.toggle("active", currentLang === "es");
+
+      const setText = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+      const setPh = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.placeholder = val;
+      };
+
+      setText("tSubtitle", d.subtitle);
+      setText("tabBtnTurno", d.tabTurno);
+      setText("tabBtnCola", d.tabCola);
+      setText("tabBtnTaller", d.tabTaller);
+      setText("tFormTitle", d.formTitle);
+      setText("lblNombre", d.lblNombre);
+      setPh("cliNombre", d.phNombre);
+      setText("lblTelefono", d.lblTelefono);
+      setText("lblHora", d.lblHora);
+      setText("tTimeNotice", d.timeNotice);
+      setText("lblVehiculo", d.lblVehiculo);
+      setPh("cliVehiculo", d.phVehiculo);
+      setText("btnCrearTurno", d.btnCrearTurno);
+      setText("tTicketRegistered", d.ticketRegistered);
+      setText("tTicketHelp", d.ticketHelp);
+      setText("btnCopyCode", d.btnCopyCode);
+      setText("btnViewQueue", d.btnViewQueue);
+
+      setText("tServicesTitle", d.servicesTitle);
+      setText("srvDiagShopTitle", d.srvDiagShopTitle);
+      setText("srvDiagShopDesc", d.srvDiagShopDesc);
+      setText("srvDiagMobTitle", d.srvDiagMobTitle);
+      setText("srvDiagMobDesc", d.srvDiagMobDesc);
+      setText("srvBrakesTitle", d.srvBrakesTitle);
+      setText("srvBrakesTag", d.srvBrakesTag);
+      setText("srvBrakesDesc", d.srvBrakesDesc);
+      setText("srvElecTitle", d.srvElecTitle);
+      setText("srvElecTag", d.srvElecTag);
+      setText("srvElecDesc", d.srvElecDesc);
+      setText("srvSuspTitle", d.srvSuspTitle);
+      setText("srvSuspTag", d.srvSuspTag);
+      setText("srvSuspDesc", d.srvSuspDesc);
+      setText("srvOilTitle", d.srvOilTitle);
+      setText("srvOilTag", d.srvOilTag);
+      setText("srvOilDesc", d.srvOilDesc);
+      setText("tPaymentNote", d.paymentNote);
+
+      setText("tQueueTitle", d.queueTitle);
+      setText("btnRefreshQueue", d.btnRefreshQueue);
+      setText("lblSearchQueue", d.lblSearchQueue);
+      setText("thOrder", d.thOrder);
+      setText("thApproxTime", d.thApproxTime);
+      setText("thStatus", d.thStatus);
+
+      setText("tPanelTitle", d.panelTitle);
+      setText("lblPin", d.lblPin);
+      setText("btnEnterPanel", d.btnEnterPanel);
+      setText("tConnectedLabel", d.connectedLabel);
+      setText("btnReloadOrders", d.btnReloadOrders);
+      setText("btnLockPanel", d.btnLockPanel);
+      setText("tLogoAdminTitle", d.logoAdminTitle);
+      setText("btnResetLogo", d.btnResetLogo);
+      setText("lblFilterOrders", d.lblFilterOrders);
+      setPh("filtroTaller", d.phFilterOrders);
+      setText("lblFilterStatus", d.lblFilterStatus);
+      setText("thAdmOrder", d.thAdmOrder);
+      setText("thAdmClient", d.thAdmClient);
+      setText("thAdmVehicle", d.thAdmVehicle);
+      setText("thAdmStatus", d.thAdmStatus);
+      setText("thAdmActions", d.thAdmActions);
+
+      setText("tEditingPrefix", d.editingPrefix);
+      setText("btnCloseEditor", d.btnCloseEditor);
+      setText("lblEditModel", d.lblEditModel);
+      setText("lblEditPlate", d.lblEditPlate);
+      setText("lblEditStatus", d.lblEditStatus);
+      setText("lblEditTime", d.lblEditTime);
+      setText("btnGuardarOrden", d.btnGuardarOrden);
+      setText("tObsTitle", d.obsTitle);
+      setText("lblObsMech", d.lblObsMech);
+      setPh("obsMecanico", d.phObsMech);
+      setText("lblObsText", d.lblObsText);
+      setPh("obsTexto", d.phObsText);
+      setText("btnAgregarObs", d.btnAgregarObs);
+      setText("tHistPrefix", d.histPrefix);
+      setText("btnCloseHist", d.btnCloseHist);
+
+      populateStatusSelects();
+      renderColaPublica();
+      if (ordenesAdmin.length) {
+        renderTablaTaller();
+        if (ordenActivaId) {
+          const active = ordenesAdmin.find(x => x.id === ordenActivaId);
+          if (active) renderObservaciones(active);
+        }
+      }
+    }
+
+    function setLang(lang) {
+      currentLang = lang === "es" ? "es" : "en";
+      localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+      applyTranslations();
+    }
+
+    function applySavedLogo() {
+      const slot = document.getElementById("brandLogoSlot");
+      const img = document.getElementById("brandLogoImg");
+      const saved = localStorage.getItem(LOGO_STORAGE_KEY);
+      if (saved) {
+        img.src = saved;
+        slot.classList.add("has-img");
+      } else {
+        img.removeAttribute("src");
+        slot.classList.remove("has-img");
+      }
+    }
+
+    function subirLogoAdmin(ev) {
+      const file = ev.target.files && ev.target.files[0];
+      const msgEl = document.getElementById("logoStatusMsg");
+      msgEl.classList.remove("err-msg");
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          localStorage.setItem(LOGO_STORAGE_KEY, String(reader.result || ""));
+          applySavedLogo();
+          msgEl.textContent = t().logoUpdated;
+        } catch (_) {
+          msgEl.classList.add("err-msg");
+          msgEl.textContent = t().logoErr;
+        }
+      };
+      reader.onerror = () => {
+        msgEl.classList.add("err-msg");
+        msgEl.textContent = t().logoErr;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetearLogoAdmin() {
+      localStorage.removeItem(LOGO_STORAGE_KEY);
+      const fileInput = document.getElementById("adminLogoFile");
+      if (fileInput) fileInput.value = "";
+      applySavedLogo();
+      const msgEl = document.getElementById("logoStatusMsg");
+      msgEl.classList.remove("err-msg");
+      msgEl.textContent = t().logoReset;
+    }
 
     function cargarCacheCola() {
       try {
@@ -461,7 +1017,7 @@
 
         const timer = setTimeout(() => {
           cleanup();
-          reject(new Error("Tiempo de espera agotado al conectar con el servidor."));
+          reject(new Error(t().errQueue));
         }, 15000);
 
         window[cbName] = (payload) => {
@@ -475,7 +1031,7 @@
         script.onerror = () => {
           clearTimeout(timer);
           cleanup();
-          reject(new Error("No se pudo conectar con Google Apps Script."));
+          reject(new Error(t().errQueue));
         };
 
         document.body.appendChild(script);
@@ -510,7 +1066,7 @@
       const vehiculo = document.getElementById("cliVehiculo").value.trim();
 
       btn.disabled = true;
-      statusEl.textContent = "Registrando tu turno...";
+      statusEl.textContent = t().submittingTurn;
 
       try {
         const res = await callGasJsonp({
@@ -522,7 +1078,7 @@
         });
 
         if (!res || !res.ok || !res.data) {
-          throw new Error((res && res.error) || "No se pudo registrar el turno.");
+          throw new Error((res && res.error) || t().errCreateTurn);
         }
 
         ultimoCodigoGenerado = res.data.id;
@@ -539,7 +1095,7 @@
         guardarCacheCola(colaPublica);
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || "Error al crear turno.";
+        statusEl.textContent = err.message || t().errCreateTurn;
       } finally {
         btn.disabled = false;
       }
@@ -552,7 +1108,7 @@
 
     function irAColaConCodigo() {
       document.getElementById("buscarCola").value = ultimoCodigoGenerado;
-      const btnCola = document.querySelectorAll(".tab-btn")[1];
+      const btnCola = document.getElementById("tabBtnCola");
       switchTab("tabCola", btnCola);
     }
 
@@ -571,30 +1127,29 @@
     async function cargarColaPublica(showLoading) {
       const statusEl = document.getElementById("colaStatusMsg");
       statusEl.classList.remove("err-msg");
-      if (showLoading) statusEl.textContent = "Actualizando cola...";
+      if (showLoading) statusEl.textContent = t().updatingQueue;
       renderColaPublica();
 
       try {
         const res = await callGasJsonp({ action: "queue" });
-        if (!res || !res.ok) throw new Error((res && res.error) || "Error al consultar la cola.");
+        if (!res || !res.ok) throw new Error((res && res.error) || t().errQueue);
         colaPublica = Array.isArray(res.queue) ? res.queue : [];
         guardarCacheCola(colaPublica);
         renderColaPublica();
         statusEl.textContent = "";
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || "No se pudo actualizar la cola.";
+        statusEl.textContent = err.message || t().errQueue;
       }
     }
 
-    // Vista pública: SOLO Orden, Hora Aprox. y Estatus (cero datos personales)
     function renderColaPublica() {
       const q = (document.getElementById("buscarCola").value || "").trim().toLowerCase();
       const rows = colaPublica.filter(o => !q || String(o.id || "").toLowerCase().includes(q));
       const body = document.getElementById("colaBody");
 
       if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="3" style="color:var(--muted);">No hay órdenes en la cola por mostrar.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="3" style="color:var(--muted);">${esc(t().emptyQueue)}</td></tr>`;
         return;
       }
 
@@ -602,7 +1157,7 @@
         <tr>
           <td><b>${esc(o.id)}</b></td>
           <td>${esc(o.hora_aproximada)}</td>
-          <td><span class="${badgeClass(o.estatus)}">${esc(o.estatus)}</span></td>
+          <td><span class="${badgeClass(o.estatus)}">${esc(statusLabel(o.estatus))}</span></td>
         </tr>
       `).join("");
     }
@@ -614,15 +1169,15 @@
 
       if (!pin) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = "Ingresa el PIN del taller.";
+        statusEl.textContent = t().errMissingPin;
         return;
       }
 
-      statusEl.textContent = "Cargando órdenes...";
+      statusEl.textContent = t().loadingOrders;
       try {
         const res = await callGasJsonp({ action: "adminList", pin });
         if (!res || !res.ok) {
-          throw new Error((res && res.error) || "PIN inválido.");
+          throw new Error((res && res.error) || t().errInvalidPin);
         }
         sessionStorage.setItem(PIN_SESSION_KEY, pin);
         ordenesAdmin = Array.isArray(res.orders) ? res.orders : [];
@@ -638,7 +1193,7 @@
       } catch (err) {
         if (isLogin) sessionStorage.removeItem(PIN_SESSION_KEY);
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || "Error al cargar el panel.";
+        statusEl.textContent = err.message || t().errPanel;
       }
     }
 
@@ -680,7 +1235,7 @@
 
       const body = document.getElementById("tallerBody");
       if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="5" style="color:var(--muted);">Sin resultados.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="5" style="color:var(--muted);">${esc(t().emptyAdmin)}</td></tr>`;
         return;
       }
 
@@ -688,9 +1243,13 @@
         const visitas = contarVisitas(o);
         const waNum = normalizarTel(o.cliente_telefono);
         const msgWa = encodeURIComponent(
-          o.estatus === "Reprogramada"
-            ? `Hola ${o.cliente_nombre}, recibimos tu orden ${o.id}. Reprogramamos tu llegada para las ${o.hora_aproximada}. ¿Te queda bien?`
-            : `Hola ${o.cliente_nombre}, te contactamos de AKAD Mobile Mechanics por tu orden ${o.id} (${o.estatus}, hora aprox. ${o.hora_aproximada}).`
+          currentLang === "es"
+            ? (o.estatus === "Reprogramada"
+                ? `Hola ${o.cliente_nombre}, recibimos tu orden ${o.id}. Reprogramamos tu llegada para las ${o.hora_aproximada}. ¿Te queda bien?`
+                : `Hola ${o.cliente_nombre}, te contactamos de AKAD Mobile Mechanics por tu orden ${o.id} (${statusLabel(o.estatus)}, hora aprox. ${o.hora_aproximada}).`)
+            : (o.estatus === "Reprogramada"
+                ? `Hi ${o.cliente_nombre}, we received your order ${o.id}. We rescheduled your arrival for ${o.hora_aproximada}. Does that work for you?`
+                : `Hi ${o.cliente_nombre}, this is AKAD Mobile Mechanics regarding order ${o.id} (${statusLabel(o.estatus)}, approx. time ${o.hora_aproximada}).`)
         );
 
         return `
@@ -698,17 +1257,17 @@
             <td><b>${esc(o.id)}</b><br><small>${esc(o.hora_aproximada)}</small></td>
             <td>
               <b>${esc(o.cliente_nombre)}</b>
-              ${visitas > 1 ? `<span class="visits-pill">${visitas} visitas</span>` : ""}
+              ${visitas > 1 ? `<span class="visits-pill">${esc(t().visitsBadge(visitas))}</span>` : ""}
               <br><small>${esc(o.cliente_telefono)}</small>
             </td>
             <td>
-              <b>${esc(o.modelo || "Sin modelo")}</b><br>
-              <small>Placa: ${esc(o.placa || "—")}</small>
+              <b>${esc(o.modelo || t().noModel)}</b><br>
+              <small>${esc(t().platePrefix)} ${esc(o.placa || "—")}</small>
             </td>
-            <td><span class="${badgeClass(o.estatus)}">${esc(o.estatus)}</span></td>
+            <td><span class="${badgeClass(o.estatus)}">${esc(statusLabel(o.estatus))}</span></td>
             <td style="display:flex;gap:5px;flex-wrap:wrap;">
-              <button class="btn btn-primary btn-sm" type="button" onclick="abrirEditor('${esc(o.id)}')">Editar</button>
-              <button class="btn btn-soft btn-sm" type="button" onclick="verHistorial('${esc(o.id)}')">Historial</button>
+              <button class="btn btn-primary btn-sm" type="button" onclick="abrirEditor('${esc(o.id)}')">${esc(t().btnEdit)}</button>
+              <button class="btn btn-soft btn-sm" type="button" onclick="verHistorial('${esc(o.id)}')">${esc(t().btnHistory)}</button>
               ${waNum ? `<a class="btn btn-wa btn-sm" target="_blank" rel="noopener noreferrer" href="https://wa.me/${waNum}?text=${msgWa}">WhatsApp</a>` : ""}
             </td>
           </tr>
@@ -723,7 +1282,7 @@
       document.getElementById("editOrdenId").textContent = o.id;
       document.getElementById("editModelo").value = o.modelo || "";
       document.getElementById("editPlaca").value = o.placa || "";
-      document.getElementById("editEstatus").value = o.estatus || "En fila";
+      document.getElementById("editEstatus").value = STATUS_KEYS.includes(o.estatus) ? o.estatus : "En fila";
       document.getElementById("editHora").value = o.hora_aproximada || "";
       document.getElementById("editorStatusMsg").textContent = "";
       document.getElementById("editorOrdenBox").style.display = "block";
@@ -747,7 +1306,7 @@
       const hora_aproximada = document.getElementById("editHora").value.trim();
 
       btn.disabled = true;
-      statusEl.textContent = "Guardando...";
+      statusEl.textContent = t().saving;
 
       try {
         const res = await callGasJsonp({
@@ -760,13 +1319,13 @@
           hora_aproximada
         });
 
-        if (!res || !res.ok) throw new Error((res && res.error) || "No se pudo guardar.");
-        statusEl.textContent = "Guardado.";
+        if (!res || !res.ok) throw new Error((res && res.error) || t().errSave);
+        statusEl.textContent = t().saved;
         await cargarPanelTaller(false);
         await cargarColaPublica(false);
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || "Error al guardar.";
+        statusEl.textContent = err.message || t().errSave;
       } finally {
         btn.disabled = false;
       }
@@ -783,7 +1342,7 @@
       if (!texto) return;
 
       btn.disabled = true;
-      statusEl.textContent = "Agregando observación...";
+      statusEl.textContent = t().addingObs;
 
       try {
         const res = await callGasJsonp({
@@ -794,13 +1353,13 @@
           texto
         });
 
-        if (!res || !res.ok) throw new Error((res && res.error) || "No se pudo agregar la observación.");
+        if (!res || !res.ok) throw new Error((res && res.error) || t().errObs);
         document.getElementById("obsTexto").value = "";
-        statusEl.textContent = "Observación guardada.";
+        statusEl.textContent = t().obsSaved;
         await cargarPanelTaller(false);
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || "Error al agregar observación.";
+        statusEl.textContent = err.message || t().errObs;
       } finally {
         btn.disabled = false;
       }
@@ -810,7 +1369,7 @@
       const box = document.getElementById("obsLista");
       const list = o.observaciones || [];
       if (!list.length) {
-        box.innerHTML = `<div style="font-size:12px;color:var(--muted);">Sin observaciones registradas aún.</div>`;
+        box.innerHTML = `<div style="font-size:12px;color:var(--muted);">${esc(t().noObs)}</div>`;
         return;
       }
       box.innerHTML = list.map(item => `
@@ -838,8 +1397,8 @@
         const obsHtml = (m.observaciones || []).map(x => `<div>• [${esc(x.fecha_hora)} - ${esc(x.mecanico)}] ${esc(x.texto)}</div>`).join("");
         return `
           <div style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
-            <b>${esc(m.id)}</b> — Estatus: <b>${esc(m.estatus)}</b> — Hora: ${esc(m.hora_aproximada)}<br>
-            Vehículo: <b>${esc(m.modelo || "—")}</b> | Placa: <b>${esc(m.placa || "—")}</b>
+            <b>${esc(m.id)}</b> — ${esc(statusLabel(m.estatus))} — ${esc(m.hora_aproximada)}<br>
+            ${esc(t().histVehicle)} <b>${esc(m.modelo || "—")}</b> | ${esc(t().histPlate)} <b>${esc(m.placa || "—")}</b>
             ${obsHtml ? `<div style="margin-top:4px;color:#334155;">${obsHtml}</div>` : ""}
           </div>
         `;
@@ -848,6 +1407,8 @@
       document.getElementById("historialBox").style.display = "block";
     }
 
+    applySavedLogo();
+    applyTranslations();
     cargarColaPublica(false);
   </script>
 </body>
