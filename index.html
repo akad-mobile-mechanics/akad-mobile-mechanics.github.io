@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKAD Mobile Mechanics — Fila de Órdenes y Taller</title>
+  <style>
+    :root {
+      --bg: #111114;
+      --surface: #FFFFFF;
+      --ink: #141417;
+      --muted: #5C5854;
+      --border: #E3DDD5;
+      --accent: #F26522;
+      --accent-dark: #C84D12;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: #F5F2EE; min-height: 100vh; padding: 18px 14px 48px; }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+
+    .topbar {
+      background: linear-gradient(135deg, #0E0E11 0%, #221914 68%, var(--accent) 160%);
+      border: 1px solid rgba(242, 101, 34, 0.35);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .brand h1 { font-size: 19px; font-weight: 800; }
+    .brand p { font-size: 12.5px; color: #E7DFD8; margin-top: 2px; }
+
+    .nav-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn {
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.08);
+      color: #FFF;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #FFF; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .card-light {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+      margin-bottom: 16px;
+    }
+    .card-light h2 { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #FAF8F5;
+      color: var(--ink);
+      font-size: 13.5px;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); background: #FFF; }
+
+    .notice-box {
+      background: #FFF7ED;
+      border: 1px solid #FDBA74;
+      color: #7C2D12;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .ticket-box {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #ECFDF5;
+      border: 1px solid #6EE7B7;
+      color: #065F46;
+    }
+    .ticket-code { font-size: 20px; font-weight: 900; letter-spacing: 0.5px; }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+    .btn-primary { background: var(--accent); color: #FFF; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-soft { background: #EFEAE3; color: var(--ink); }
+    .btn-wa { background: #25D366; color: #FFF; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: #FFF; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--ink); }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { background: #F4F0EA; font-weight: 800; font-size: 12px; text-transform: uppercase; color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 800;
+    }
+    .st-en-fila { background: #E5E7EB; color: #1F2937; }
+    .st-aceptada { background: #DBEAFE; color: #1E40AF; }
+    .st-reprogramada { background: #FEF3C7; color: #92400E; }
+    .st-en-revision { background: #E0E7FF; color: #3730A3; }
+    .st-esperando-aprobacion { background: #FFEDD5; color: #9A3412; }
+    .st-en-reparacion { background: #FEE2E2; color: #991B1B; }
+    .st-listo-para-retirar { background: #CCFBF1; color: #115E59; }
+    .st-completada { background: #DCFCE7; color: #166534; }
+    .st-rechazada { background: #F3F4F6; color: #4B5563; }
+
+    .visits-pill {
+      display: inline-block;
+      background: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #F59E0B;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: 6px;
+    }
+
+    .editor-box {
+      background: #FAF8F5;
+      border: 1.5px solid var(--accent);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 14px;
+      display: none;
+    }
+    .obs-list {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .obs-item {
+      background: #FFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+    }
+    .obs-meta { font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 3px; }
+
+    .history-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      display: none;
+    }
+    .status-msg { font-size: 12.5px; font-weight: 700; margin-top: 8px; color: var(--muted); }
+    .err-msg { color: #B91C1C; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <h1>AKAD Mobile Mechanics</h1>
+        <p>Turnos, Cola de Atención y Registro de Taller</p>
+      </div>
+      <nav class="nav-tabs">
+        <button class="tab-btn active" type="button" onclick="switchTab('tabTurno', this)">1. Pedir Turno</button>
+        <button class="tab-btn" type="button" onclick="switchTab('tabCola', this)">2. Cola en Vivo</button>
+        <button class="tab-btn" type="button" onclick="switchTab('tabTaller', this)">3. Panel Taller</button>
+      </nav>
+    </header>
+
+    <!-- 1. FORMULARIO RÁPIDO DEL CLIENTE -->
+    <section id="tabTurno" class="panel active">
+      <div class="card-light">
+        <h2>Tomar Turno</h2>
+        <form id="formTurno" onsubmit="crearTurno(event)">
+          <div class="grid-2">
+            <div class="field">
+              <label for="cliNombre">Nombre *</label>
+              <input type="text" id="cliNombre" required placeholder="Ej. Carlos Pérez" />
+            </div>
+            <div class="field">
+              <label for="cliTelefono">Teléfono / WhatsApp *</label>
+              <input type="tel" id="cliTelefono" required placeholder="Ej. +1 407 555 0199" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="cliHoraAprox">Hora aproximada de llegada *</label>
+              <select id="cliHoraAprox" required>
+                <option value="08:00 AM">08:00 AM</option>
+                <option value="09:00 AM">09:00 AM</option>
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="11:00 AM">11:00 AM</option>
+                <option value="12:00 PM">12:00 PM</option>
+                <option value="01:00 PM">01:00 PM</option>
+                <option value="02:00 PM">02:00 PM</option>
+                <option value="03:00 PM">03:00 PM</option>
+                <option value="04:00 PM">04:00 PM</option>
+                <option value="05:00 PM">05:00 PM</option>
+              </select>
+              <div class="notice-box">
+                La hora seleccionada es aproximada y está sujeta a cambios o reprogramación. Te notificaremos por WhatsApp al tomar tu orden.
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="cliVehiculo">Vehículo (Opcional)</label>
+              <input type="text" id="cliVehiculo" placeholder="Ej. Toyota Corolla 2019 (o deja en blanco)" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btnCrearTurno" type="submit">Generar Turno y Ver Cola</button>
+          <div class="status-msg" id="turnoStatusMsg"></div>
+        </form>
+
+        <div class="ticket-box" id="ticketBox">
+          <div>Turno registrado:</div>
+          <div class="ticket-code" id="ticketCodigo"></div>
+          <p style="font-size:12.5px;margin-top:4px;">
+            Guarda este código para consultar tu estatus en la <strong>Cola en Vivo</strong>. Te avisaremos por WhatsApp al revisar o reprogramar tu hora.
+          </p>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-soft btn-sm" type="button" onclick="copiarCodigoTicket()">Copiar código</button>
+            <button class="btn btn-primary btn-sm" type="button" onclick="irAColaConCodigo()">Ver en la Cola</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. COLA PÚBLICA (SIN DATOS PERSONALES) -->
+    <section id="tabCola" class="panel">
+      <div class="card-light">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <h2 style="margin-bottom:0;">Cola de Órdenes</h2>
+          <button class="btn btn-soft btn-sm" type="button" onclick="cargarColaPublica(true)">Actualizar cola</button>
+        </div>
+        <div class="field">
+          <label for="buscarCola">Buscar por código de orden</label>
+          <input type="text" id="buscarCola" placeholder="Ej. ORD-1001" oninput="renderColaPublica()" />
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Orden</th>
+                <th>Hora Aprox.</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody id="colaBody"></tbody>
+          </table>
+        </div>
+        <div class="status-msg" id="colaStatusMsg"></div>
+      </div>
+    </section>
+
+    <!-- 3. PANEL DE TALLER (MODELO, PLACA, OBSERVACIONES + HISTORIAL) -->
+    <section id="tabTaller" class="panel">
+      <div class="card-light">
+        <h2>Control de Taller e Historial</h2>
+
+        <div id="loginTallerBox" style="max-width:420px;margin-bottom:16px;">
+          <div class="field">
+            <label for="adminPinInput">PIN del taller</label>
+            <input type="password" id="adminPinInput" placeholder="Ingresa el PIN (ej. AKAD2026)" />
+          </div>
+          <button class="btn btn-primary btn-sm" type="button" onclick="cargarPanelTaller(true)">Entrar al Panel</button>
+          <div class="status-msg" id="tallerStatusMsg"></div>
+        </div>
+
+        <div id="tallerWorkspace" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <span style="font-size:12.5px;color:var(--muted);font-weight:700;">Conectado a Google Sheets</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-soft btn-sm" type="button" onclick="cargarPanelTaller(false)">Refrescar órdenes</button>
+              <button class="btn btn-soft btn-sm" type="button" onclick="cerrarSesionTaller()">Bloquear</button>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom:12px;">
+            <div class="field" style="margin-bottom:0;">
+              <label for="filtroTaller">Filtrar por Orden, Cliente, Teléfono, Modelo o Placa</label>
+              <input type="text" id="filtroTaller" placeholder="Escribe placa, teléfono, nombre o código..." oninput="renderTablaTaller()" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="filtroEstatusTaller">Filtrar por estatus</label>
+              <select id="filtroEstatusTaller" onchange="renderTablaTaller()">
+                <option value="TODOS">Todos</option>
+                <option value="En fila">En fila</option>
+                <option value="Aceptada">Aceptada</option>
+                <option value="Reprogramada">Reprogramada</option>
+                <option value="En revisión">En revisión</option>
+                <option value="Esperando aprobación">Esperando aprobación</option>
+                <option value="En reparación">En reparación</option>
+                <option value="Listo para retirar">Listo para retirar</option>
+                <option value="Completada">Completada</option>
+                <option value="Rechazada">Rechazada</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Orden / Hora</th>
+                  <th>Cliente / Teléfono</th>
+                  <th>Modelo / Placa</th>
+                  <th>Estatus</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tallerBody"></tbody>
+            </table>
+          </div>
+
+          <!-- EDITOR RÁPIDO: MODELO, PLACA, ESTATUS, HORA Y OBSERVACIONES -->
+          <div class="editor-box" id="editorOrdenBox">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;">
+              <h3 style="font-size:15px;font-weight:800;">Editando Orden: <span id="editOrdenId"></span></h3>
+              <button class="btn btn-soft btn-sm" type="button" onclick="cerrarEditor()">Cerrar</button>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="editModelo">Modelo del vehículo</label>
+                <input type="text" id="editModelo" placeholder="Ej. Mazda 3 2018" />
+              </div>
+              <div class="field">
+                <label for="editPlaca">Placa</label>
+                <input type="text" id="editPlaca" placeholder="Ej. ABC-1234" />
+              </div>
+              <div class="field">
+                <label for="editEstatus">Estatus</label>
+                <select id="editEstatus">
+                  <option value="En fila">En fila</option>
+                  <option value="Aceptada">Aceptada</option>
+                  <option value="Reprogramada">Reprogramada</option>
+                  <option value="En revisión">En revisión</option>
+                  <option value="Esperando aprobación">Esperando aprobación</option>
+                  <option value="En reparación">En reparación</option>
+                  <option value="Listo para retirar">Listo para retirar</option>
+                  <option value="Completada">Completada</option>
+                  <option value="Rechazada">Rechazada</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="editHora">Hora (ajustable si se reprograma)</label>
+                <input type="text" id="editHora" placeholder="Ej. 10:30 AM" />
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-sm" id="btnGuardarOrden" type="button" onclick="guardarCambiosOrden()">Guardar Modelo / Placa / Estatus</button>
+            <span class="status-msg" id="editorStatusMsg" style="margin-left:8px;"></span>
+
+            <hr style="margin:14px 0;border:none;border-top:1px solid var(--border);" />
+
+            <h4 style="font-size:13.5px;font-weight:800;margin-bottom:8px;">Observaciones del taller (registro interno)</h4>
+            <div class="grid-2">
+              <div class="field" style="margin-bottom:6px;">
+                <label for="obsMecanico">Mecánico (opcional)</label>
+                <input type="text" id="obsMecanico" placeholder="Ej. Luis" />
+              </div>
+              <div class="field" style="margin-bottom:6px;">
+                <label for="obsTexto">Nueva observación</label>
+                <input type="text" id="obsTexto" placeholder="Ej. Fuga en manguera superior, falta confirmar repuesto" />
+              </div>
+            </div>
+            <button class="btn btn-soft btn-sm" id="btnAgregarObs" type="button" onclick="agregarObservacion()">+ Agregar Observación</button>
+
+            <div class="obs-list" id="obsLista"></div>
+          </div>
+
+          <!-- HISTORIAL POR TELÉFONO O PLACA -->
+          <div class="history-box" id="historialBox">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <h3 style="font-size:14.5px;font-weight:800;color:#0F172A;">Historial de Visitas: <span id="historialTitulo"></span></h3>
+              <button class="btn btn-soft btn-sm" type="button" onclick="document.getElementById('historialBox').style.display='none'">Cerrar</button>
+            </div>
+            <div id="historialContenido" style="font-size:12.5px;color:#1E293B;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwHgoFWSWlAZwQaLXl7HxNTqQwN-eyY2HKk7tEayRckIz9xygPxSp8aqcvKCV8gKMw/exec";
+    const CACHE_QUEUE_KEY = "akad_queue_cache_v1";
+    const PIN_SESSION_KEY = "akad_taller_pin_v1";
+
+    let colaPublica = cargarCacheCola();
+    let ordenesAdmin = [];
+    let ordenActivaId = null;
+    let ultimoCodigoGenerado = "";
+
+    function cargarCacheCola() {
+      try {
+        const raw = localStorage.getItem(CACHE_QUEUE_KEY);
+        const parsed = JSON.parse(raw || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function guardarCacheCola(list) {
+      try {
+        localStorage.setItem(CACHE_QUEUE_KEY, JSON.stringify(list || []));
+      } catch (_) {}
+    }
+
+    function callGasJsonp(params) {
+      return new Promise((resolve, reject) => {
+        const cbName = "akadCb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+        const script = document.createElement("script");
+        let done = false;
+
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          try { delete window[cbName]; } catch (_) { window[cbName] = undefined; }
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+        };
+
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error("Tiempo de espera agotado al conectar con el servidor."));
+        }, 15000);
+
+        window[cbName] = (payload) => {
+          clearTimeout(timer);
+          cleanup();
+          resolve(payload);
+        };
+
+        const qs = new URLSearchParams(Object.assign({}, params, { callback: cbName }));
+        script.src = `${GAS_URL}?${qs.toString()}`;
+        script.onerror = () => {
+          clearTimeout(timer);
+          cleanup();
+          reject(new Error("No se pudo conectar con Google Apps Script."));
+        };
+
+        document.body.appendChild(script);
+      });
+    }
+
+    function getActivePin() {
+      return (document.getElementById("adminPinInput").value || sessionStorage.getItem(PIN_SESSION_KEY) || "").trim();
+    }
+
+    function switchTab(id, btn) {
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      if (btn) btn.classList.add("active");
+      if (id === "tabCola") cargarColaPublica(false);
+      if (id === "tabTaller" && sessionStorage.getItem(PIN_SESSION_KEY)) {
+        document.getElementById("adminPinInput").value = sessionStorage.getItem(PIN_SESSION_KEY);
+        cargarPanelTaller(false);
+      }
+    }
+
+    async function crearTurno(ev) {
+      ev.preventDefault();
+      const btn = document.getElementById("btnCrearTurno");
+      const statusEl = document.getElementById("turnoStatusMsg");
+      statusEl.classList.remove("err-msg");
+
+      const nombre = document.getElementById("cliNombre").value.trim();
+      const tel = document.getElementById("cliTelefono").value.trim();
+      const hora = document.getElementById("cliHoraAprox").value;
+      const vehiculo = document.getElementById("cliVehiculo").value.trim();
+
+      btn.disabled = true;
+      statusEl.textContent = "Registrando tu turno...";
+
+      try {
+        const res = await callGasJsonp({
+          action: "createTurno",
+          cliente_nombre: nombre,
+          cliente_telefono: tel,
+          hora_aproximada: hora,
+          modelo: vehiculo
+        });
+
+        if (!res || !res.ok || !res.data) {
+          throw new Error((res && res.error) || "No se pudo registrar el turno.");
+        }
+
+        ultimoCodigoGenerado = res.data.id;
+        document.getElementById("formTurno").reset();
+        document.getElementById("ticketCodigo").textContent = res.data.id;
+        document.getElementById("ticketBox").style.display = "block";
+        statusEl.textContent = "";
+
+        colaPublica.unshift({
+          id: res.data.id,
+          hora_aproximada: res.data.hora_aproximada,
+          estatus: res.data.estatus || "En fila"
+        });
+        guardarCacheCola(colaPublica);
+      } catch (err) {
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = err.message || "Error al crear turno.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function copiarCodigoTicket() {
+      if (!ultimoCodigoGenerado) return;
+      navigator.clipboard?.writeText(ultimoCodigoGenerado);
+    }
+
+    function irAColaConCodigo() {
+      document.getElementById("buscarCola").value = ultimoCodigoGenerado;
+      const btnCola = document.querySelectorAll(".tab-btn")[1];
+      switchTab("tabCola", btnCola);
+    }
+
+    function badgeClass(estatus) {
+      const slug = String(estatus || "En fila")
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-");
+      return `badge st-${slug}`;
+    }
+
+    function esc(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    async function cargarColaPublica(showLoading) {
+      const statusEl = document.getElementById("colaStatusMsg");
+      statusEl.classList.remove("err-msg");
+      if (showLoading) statusEl.textContent = "Actualizando cola...";
+      renderColaPublica();
+
+      try {
+        const res = await callGasJsonp({ action: "queue" });
+        if (!res || !res.ok) throw new Error((res && res.error) || "Error al consultar la cola.");
+        colaPublica = Array.isArray(res.queue) ? res.queue : [];
+        guardarCacheCola(colaPublica);
+        renderColaPublica();
+        statusEl.textContent = "";
+      } catch (err) {
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = err.message || "No se pudo actualizar la cola.";
+      }
+    }
+
+    // Vista pública: SOLO Orden, Hora Aprox. y Estatus (cero datos personales)
+    function renderColaPublica() {
+      const q = (document.getElementById("buscarCola").value || "").trim().toLowerCase();
+      const rows = colaPublica.filter(o => !q || String(o.id || "").toLowerCase().includes(q));
+      const body = document.getElementById("colaBody");
+
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="3" style="color:var(--muted);">No hay órdenes en la cola por mostrar.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = rows.map(o => `
+        <tr>
+          <td><b>${esc(o.id)}</b></td>
+          <td>${esc(o.hora_aproximada)}</td>
+          <td><span class="${badgeClass(o.estatus)}">${esc(o.estatus)}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    async function cargarPanelTaller(isLogin) {
+      const pin = getActivePin();
+      const statusEl = document.getElementById("tallerStatusMsg");
+      statusEl.classList.remove("err-msg");
+
+      if (!pin) {
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = "Ingresa el PIN del taller.";
+        return;
+      }
+
+      statusEl.textContent = "Cargando órdenes...";
+      try {
+        const res = await callGasJsonp({ action: "adminList", pin });
+        if (!res || !res.ok) {
+          throw new Error((res && res.error) || "PIN inválido.");
+        }
+        sessionStorage.setItem(PIN_SESSION_KEY, pin);
+        ordenesAdmin = Array.isArray(res.orders) ? res.orders : [];
+        document.getElementById("loginTallerBox").style.display = "none";
+        document.getElementById("tallerWorkspace").style.display = "block";
+        statusEl.textContent = "";
+        renderTablaTaller();
+
+        if (ordenActivaId) {
+          const updated = ordenesAdmin.find(x => x.id === ordenActivaId);
+          if (updated) renderObservaciones(updated);
+        }
+      } catch (err) {
+        if (isLogin) sessionStorage.removeItem(PIN_SESSION_KEY);
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = err.message || "Error al cargar el panel.";
+      }
+    }
+
+    function cerrarSesionTaller() {
+      sessionStorage.removeItem(PIN_SESSION_KEY);
+      document.getElementById("adminPinInput").value = "";
+      document.getElementById("tallerWorkspace").style.display = "none";
+      document.getElementById("loginTallerBox").style.display = "block";
+      cerrarEditor();
+    }
+
+    function normalizarTel(t) {
+      return String(t || "").replace(/\D/g, "");
+    }
+
+    function normalizarPlaca(p) {
+      return String(p || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    }
+
+    function contarVisitas(orden) {
+      const tel = normalizarTel(orden.cliente_telefono);
+      const placa = normalizarPlaca(orden.placa);
+      return ordenesAdmin.filter(o => {
+        const sameTel = tel && normalizarTel(o.cliente_telefono) === tel;
+        const samePlaca = placa && normalizarPlaca(o.placa) === placa;
+        return sameTel || samePlaca;
+      }).length;
+    }
+
+    function renderTablaTaller() {
+      const q = (document.getElementById("filtroTaller").value || "").trim().toLowerCase();
+      const est = document.getElementById("filtroEstatusTaller").value;
+
+      const rows = ordenesAdmin.filter(o => {
+        const matchEst = est === "TODOS" || o.estatus === est;
+        const blob = `${o.id} ${o.cliente_nombre} ${o.cliente_telefono} ${o.modelo} ${o.placa}`.toLowerCase();
+        return matchEst && (!q || blob.includes(q));
+      });
+
+      const body = document.getElementById("tallerBody");
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="5" style="color:var(--muted);">Sin resultados.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = rows.map(o => {
+        const visitas = contarVisitas(o);
+        const waNum = normalizarTel(o.cliente_telefono);
+        const msgWa = encodeURIComponent(
+          o.estatus === "Reprogramada"
+            ? `Hola ${o.cliente_nombre}, recibimos tu orden ${o.id}. Reprogramamos tu llegada para las ${o.hora_aproximada}. ¿Te queda bien?`
+            : `Hola ${o.cliente_nombre}, te contactamos de AKAD Mobile Mechanics por tu orden ${o.id} (${o.estatus}, hora aprox. ${o.hora_aproximada}).`
+        );
+
+        return `
+          <tr>
+            <td><b>${esc(o.id)}</b><br><small>${esc(o.hora_aproximada)}</small></td>
+            <td>
+              <b>${esc(o.cliente_nombre)}</b>
+              ${visitas > 1 ? `<span class="visits-pill">${visitas} visitas</span>` : ""}
+              <br><small>${esc(o.cliente_telefono)}</small>
+            </td>
+            <td>
+              <b>${esc(o.modelo || "Sin modelo")}</b><br>
+              <small>Placa: ${esc(o.placa || "—")}</small>
+            </td>
+            <td><span class="${badgeClass(o.estatus)}">${esc(o.estatus)}</span></td>
+            <td style="display:flex;gap:5px;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" type="button" onclick="abrirEditor('${esc(o.id)}')">Editar</button>
+              <button class="btn btn-soft btn-sm" type="button" onclick="verHistorial('${esc(o.id)}')">Historial</button>
+              ${waNum ? `<a class="btn btn-wa btn-sm" target="_blank" rel="noopener noreferrer" href="https://wa.me/${waNum}?text=${msgWa}">WhatsApp</a>` : ""}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function abrirEditor(id) {
+      const o = ordenesAdmin.find(x => x.id === id);
+      if (!o) return;
+      ordenActivaId = id;
+      document.getElementById("editOrdenId").textContent = o.id;
+      document.getElementById("editModelo").value = o.modelo || "";
+      document.getElementById("editPlaca").value = o.placa || "";
+      document.getElementById("editEstatus").value = o.estatus || "En fila";
+      document.getElementById("editHora").value = o.hora_aproximada || "";
+      document.getElementById("editorStatusMsg").textContent = "";
+      document.getElementById("editorOrdenBox").style.display = "block";
+      renderObservaciones(o);
+    }
+
+    function cerrarEditor() {
+      ordenActivaId = null;
+      document.getElementById("editorOrdenBox").style.display = "none";
+    }
+
+    async function guardarCambiosOrden() {
+      if (!ordenActivaId) return;
+      const btn = document.getElementById("btnGuardarOrden");
+      const statusEl = document.getElementById("editorStatusMsg");
+      statusEl.classList.remove("err-msg");
+
+      const modelo = document.getElementById("editModelo").value.trim();
+      const placa = document.getElementById("editPlaca").value.trim().toUpperCase();
+      const estatus = document.getElementById("editEstatus").value;
+      const hora_aproximada = document.getElementById("editHora").value.trim();
+
+      btn.disabled = true;
+      statusEl.textContent = "Guardando...";
+
+      try {
+        const res = await callGasJsonp({
+          action: "updateTurno",
+          pin: getActivePin(),
+          id: ordenActivaId,
+          modelo,
+          placa,
+          estatus,
+          hora_aproximada
+        });
+
+        if (!res || !res.ok) throw new Error((res && res.error) || "No se pudo guardar.");
+        statusEl.textContent = "Guardado.";
+        await cargarPanelTaller(false);
+        await cargarColaPublica(false);
+      } catch (err) {
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = err.message || "Error al guardar.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function agregarObservacion() {
+      if (!ordenActivaId) return;
+      const btn = document.getElementById("btnAgregarObs");
+      const statusEl = document.getElementById("editorStatusMsg");
+      statusEl.classList.remove("err-msg");
+
+      const mecanico = document.getElementById("obsMecanico").value.trim();
+      const texto = document.getElementById("obsTexto").value.trim();
+      if (!texto) return;
+
+      btn.disabled = true;
+      statusEl.textContent = "Agregando observación...";
+
+      try {
+        const res = await callGasJsonp({
+          action: "addObservacion",
+          pin: getActivePin(),
+          orden_id: ordenActivaId,
+          mecanico,
+          texto
+        });
+
+        if (!res || !res.ok) throw new Error((res && res.error) || "No se pudo agregar la observación.");
+        document.getElementById("obsTexto").value = "";
+        statusEl.textContent = "Observación guardada.";
+        await cargarPanelTaller(false);
+      } catch (err) {
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = err.message || "Error al agregar observación.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderObservaciones(o) {
+      const box = document.getElementById("obsLista");
+      const list = o.observaciones || [];
+      if (!list.length) {
+        box.innerHTML = `<div style="font-size:12px;color:var(--muted);">Sin observaciones registradas aún.</div>`;
+        return;
+      }
+      box.innerHTML = list.map(item => `
+        <div class="obs-item">
+          <div class="obs-meta">${esc(item.fecha_hora)} • ${esc(item.mecanico)}</div>
+          <div>${esc(item.texto)}</div>
+        </div>
+      `).join("");
+    }
+
+    function verHistorial(id) {
+      const base = ordenesAdmin.find(x => x.id === id);
+      if (!base) return;
+      const tel = normalizarTel(base.cliente_telefono);
+      const placa = normalizarPlaca(base.placa);
+
+      const matches = ordenesAdmin.filter(o => {
+        const sameTel = tel && normalizarTel(o.cliente_telefono) === tel;
+        const samePlaca = placa && normalizarPlaca(o.placa) === placa;
+        return sameTel || samePlaca || o.id === id;
+      });
+
+      document.getElementById("historialTitulo").textContent = `${base.cliente_nombre} (${base.cliente_telefono})`;
+      document.getElementById("historialContenido").innerHTML = matches.map(m => {
+        const obsHtml = (m.observaciones || []).map(x => `<div>• [${esc(x.fecha_hora)} - ${esc(x.mecanico)}] ${esc(x.texto)}</div>`).join("");
+        return `
+          <div style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
+            <b>${esc(m.id)}</b> — Estatus: <b>${esc(m.estatus)}</b> — Hora: ${esc(m.hora_aproximada)}<br>
+            Vehículo: <b>${esc(m.modelo || "—")}</b> | Placa: <b>${esc(m.placa || "—")}</b>
+            ${obsHtml ? `<div style="margin-top:4px;color:#334155;">${obsHtml}</div>` : ""}
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("historialBox").style.display = "block";
+    }
+
+    cargarColaPublica(false);
+  </script>
+</body>
+</html>
