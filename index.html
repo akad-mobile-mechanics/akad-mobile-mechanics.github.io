@@ -352,6 +352,17 @@
       border-radius: 999px;
       margin-top: 3px;
     }
+    .shop-pill {
+      display: inline-block;
+      background: #EFF6FF;
+      color: #1E40AF;
+      border: 1px solid #93C5FD;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-top: 3px;
+    }
 
     .editor-box, .logo-admin-box {
       background: #FAF8F5;
@@ -545,7 +556,7 @@
           <div class="grid-2" style="margin-top:12px;">
             <div class="field">
               <label for="cliModalidad" id="lblModalidad">Service mode *</label>
-              <select id="cliModalidad" required onchange="toggleDireccionDomicilio()">
+              <select id="cliModalidad" required onchange="onModalidadChange()">
                 <option value="En taller">At Shop (AKAD Location)</option>
                 <option value="A domicilio">Mobile Service (At your location)</option>
               </select>
@@ -579,6 +590,7 @@
               <span id="cartTotalValue">$0</span>
             </div>
             <div class="status-msg" id="cartPostServiceNote" style="margin-top:6px;"></div>
+            <div class="status-msg err-msg" id="cartConflictMsg" style="margin-top:6px;"></div>
           </div>
 
           <div style="margin-top:14px;">
@@ -720,7 +732,7 @@
               <div class="field">
                 <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--ink);">
                   <input type="checkbox" id="srvMobileDelivery" style="width:auto;" />
-                  <span>Servicio a domicilio / móvil (exige dirección del cliente en el formulario)</span>
+                  <span>Servicio a domicilio / móvil (exige dirección del cliente y no se mezcla con servicios de local)</span>
                 </label>
               </div>
               <button class="btn btn-primary btn-sm" id="btnGuardarServicio" type="submit">+ Crear Servicio</button>
@@ -823,7 +835,7 @@
   </a>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzBs8Rr-2tGclOpXMHa-_osTWUD5kBX6j5nI-j9C_7gpDSh_ofkpaaNBz5a4p1lTETO/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzPk9RIPmSvMp9Fje-AaGgxqeAaX8rtMv78JB7EalxEc-LC9sxU4GZ52YeeCVpkqMkt/exec";
     const AKAD_WA_NUMBER = "13219146552";
     const AKAD_SMS_NUMBER = "3219146552";
     const AKAD_MAPS_URL = "https://maps.app.goo.gl/8nC92cRb75KRz2Sa7";
@@ -940,6 +952,9 @@
         lblDireccionRef: "Service address (required for mobile/home service) *",
         phDireccionRef: "Street, apartment/house number, landmark or ZIP code...",
         errDireccionRef: "Please enter your service address because a mobile/home service is selected.",
+        errConflictMobileInShop: "You cannot mix a Mobile Service with Shop/At-Shop services in the same order. Please place a separate order.",
+        errConflictShopInMobile: "You cannot mix a Shop service with Mobile/Home services in the same order. Please place a separate order.",
+        errConflictModeShop: "Your cart contains a Mobile Service. Switch Service mode to Mobile Service or remove the mobile service first.",
         lblVehiculo: "Vehicle (Optional)",
         lblPago: "Payment method *",
         cartTitle: "Selected Services Cart",
@@ -953,6 +968,7 @@
         tagService: "Service",
         tagLoyalty: "Loyalty",
         tagMobile: "Mobile / Address req.",
+        tagShop: "At Shop",
         btnCrearTurno: "Submit Order & View Queue",
         submittingTurn: "Registering your order...",
         errCreateTurn: "Could not register the order.",
@@ -1011,6 +1027,9 @@
         lblDireccionRef: "Dirección de servicio (obligatoria para domicilio) *",
         phDireccionRef: "Calle, número de casa/apto, punto de referencia o código postal...",
         errDireccionRef: "Debes indicar tu dirección en el formulario porque seleccionaste un servicio a domicilio.",
+        errConflictMobileInShop: "No puedes mezclar un servicio a domicilio con servicios de local/taller en la misma orden. Haz una orden aparte.",
+        errConflictShopInMobile: "No puedes mezclar un servicio de local/taller con servicios a domicilio en la misma orden. Haz una orden aparte.",
+        errConflictModeShop: "Tienes un servicio a domicilio en el carrito. Cambia la modalidad a A domicilio o quita primero el servicio a domicilio.",
         lblVehiculo: "Vehículo (Opcional)",
         lblPago: "Método de pago *",
         cartTitle: "Carrito de Servicios",
@@ -1024,6 +1043,7 @@
         tagService: "Servicio",
         tagLoyalty: "Lealtad",
         tagMobile: "Domicilio · Dir. obligatoria",
+        tagShop: "En local",
         btnCrearTurno: "Registrar Orden y Ver Cola",
         submittingTurn: "Registrando tu orden...",
         errCreateTurn: "No se pudo registrar la orden.",
@@ -1065,6 +1085,11 @@
     let ultimoCodigoGenerado = "";
     let adminPinMem = "";
     let adminAutenticado = false;
+
+    function setConflictWarning(msg) {
+      const el = document.getElementById("cartConflictMsg");
+      if (el) el.textContent = msg || "";
+    }
 
     function cargarServicesCatalog() {
       try {
@@ -1205,7 +1230,9 @@
             <div>
               <b>${esc(srv.emoji || "🔧")} ${esc(srv.esTitle)}</b> / <span>${esc(srv.enTitle)}</span>
               <span class="visits-pill">${esc(precioTxt)}</span>
-              ${srv.mobileDelivery ? `<span class="mode-pill">Requiere dirección</span>` : ""}
+              ${srv.mobileDelivery
+                ? `<span class="mode-pill">A domicilio · Requiere dirección</span>`
+                : `<span class="shop-pill">En local</span>`}
               <div style="color:var(--muted);margin-top:2px;">${esc(srv.esDesc)}</div>
             </div>
             <div style="display:flex;gap:6px;">
@@ -1224,6 +1251,21 @@
       return Boolean(porModalidad || porCarrito);
     }
 
+    function onModalidadChange() {
+      const d = tClient(currentLang);
+      const modSel = document.getElementById("cliModalidad");
+      if (!modSel) return;
+
+      const tieneDomicilioEnCarrito = cartItems.some(i => Boolean(i.mobileDelivery));
+      if (modSel.value === "En taller" && tieneDomicilioEnCarrito) {
+        modSel.value = "A domicilio";
+        setConflictWarning(d.errConflictModeShop);
+      } else {
+        setConflictWarning("");
+      }
+      toggleDireccionDomicilio();
+    }
+
     function toggleDireccionDomicilio() {
       const modSel = document.getElementById("cliModalidad");
       const box = document.getElementById("domicilioBox");
@@ -1231,8 +1273,14 @@
       if (!modSel || !box || !dirInput) return;
 
       const esDomicilio = requiereDireccionEnFormulario();
+      if (esDomicilio && modSel.value !== "A domicilio") {
+        modSel.value = "A domicilio";
+      }
       box.classList.toggle("open", esDomicilio);
       dirInput.required = esDomicilio;
+      if (!esDomicilio) {
+        dirInput.value = "";
+      }
     }
 
     function cargarCorreoAkad() {
@@ -1363,7 +1411,27 @@
     function addServiceToCart(serviceId) {
       const srv = servicesCatalog.find(s => s.id === serviceId);
       if (!srv) return;
+      const d = tClient(currentLang);
       const esDomicilio = Boolean(srv.mobileDelivery);
+
+      const cartHasMobile = cartItems.some(i => Boolean(i.mobileDelivery));
+      const cartHasShop = cartItems.some(i => !Boolean(i.mobileDelivery));
+      const modSel = document.getElementById("cliModalidad");
+      const currentMode = modSel ? modSel.value : "En taller";
+
+      if (esDomicilio) {
+        if (cartHasShop || (!cartItems.length && currentMode === "En taller")) {
+          setConflictWarning(d.errConflictShopInMobile);
+          return;
+        }
+      } else {
+        if (cartHasMobile || (!cartItems.length && currentMode === "A domicilio")) {
+          setConflictWarning(d.errConflictMobileInShop);
+          return;
+        }
+      }
+
+      setConflictWarning("");
       cartItems.push({
         uid: Date.now() + "_" + Math.random().toString(36).slice(2, 7),
         id: srv.id,
@@ -1374,11 +1442,9 @@
         enTitle: srv.enTitle,
         esTitle: srv.esTitle
       });
-      if (esDomicilio) {
-        const modSel = document.getElementById("cliModalidad");
-        if (modSel && modSel.value !== "A domicilio") {
-          modSel.value = "A domicilio";
-        }
+
+      if (modSel) {
+        modSel.value = esDomicilio ? "A domicilio" : "En taller";
       }
       toggleDireccionDomicilio();
       renderCart();
@@ -1386,6 +1452,7 @@
 
     function removeServiceFromCart(uid) {
       cartItems = cartItems.filter(item => item.uid !== uid);
+      setConflictWarning("");
       toggleDireccionDomicilio();
       renderCart();
     }
@@ -1455,9 +1522,12 @@
           hasVariable = true;
           priceLabel = item.badgeType === "loyalty" ? d.tagLoyalty : d.tagService;
         }
+        const modeTag = item.mobileDelivery
+          ? `<span class="mode-pill">${esc(d.tagMobile)}</span>`
+          : `<span class="shop-pill">${esc(d.tagShop)}</span>`;
         return `
           <div class="cart-row">
-            <span><b>${esc(title)}</b> — <span>${esc(priceLabel)}</span>${item.mobileDelivery ? ` <span class="mode-pill">${esc(d.tagMobile)}</span>` : ""}</span>
+            <span><b>${esc(title)}</b> — <span>${esc(priceLabel)}</span> ${modeTag}</span>
             <button type="button" class="btn btn-soft btn-sm" onclick="removeServiceFromCart('${esc(item.uid)}')">${esc(d.btnRemoveCart)}</button>
           </div>
         `;
@@ -1486,6 +1556,9 @@
         const badgeHtml = typeof srv.price === "number"
           ? `<span class="service-price">$${srv.price}</span>`
           : `<span class="service-tag">${esc(srv.badgeType === "loyalty" ? d.tagLoyalty : d.tagService)}</span>`;
+        const modePill = srv.mobileDelivery
+          ? `<span class="mode-pill">${esc(d.tagMobile)}</span>`
+          : `<span class="shop-pill">${esc(d.tagShop)}</span>`;
 
         return `
           <div class="service-item">
@@ -1495,7 +1568,7 @@
                 ${badgeHtml}
               </div>
               <p class="service-desc" style="margin-top:6px;">${esc(desc)}</p>
-              ${srv.mobileDelivery ? `<div style="margin-top:6px;"><span class="mode-pill">${esc(d.tagMobile)}</span></div>` : ""}
+              <div style="margin-top:6px;">${modePill}</div>
             </div>
             <button type="button" class="btn btn-soft btn-sm" onclick="addServiceToCart('${esc(srv.id)}')">${esc(d.btnAddCart)}</button>
           </div>
@@ -1756,11 +1829,19 @@
       const vehiculo = document.getElementById("cliVehiculo").value.trim();
       const pago = document.getElementById("cliPago").value;
 
-      const exigenDomicilio = requiereDireccionEnFormulario();
-      const modalidad = exigenDomicilio ? "A domicilio" : document.getElementById("cliModalidad").value;
-
+      const tieneDomicilio = cartItems.some(i => Boolean(i.mobileDelivery));
+      const tieneLocal = cartItems.some(i => !Boolean(i.mobileDelivery));
       const reqLang = detectarIdiomaSolicitud(`${nombre} ${vehiculo} ${direccionRef}`);
       const msgDict = tClient(reqLang);
+
+      if (tieneDomicilio && tieneLocal) {
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = msgDict.errConflictMobileInShop;
+        return;
+      }
+
+      const exigenDomicilio = tieneDomicilio || document.getElementById("cliModalidad").value === "A domicilio";
+      const modalidad = exigenDomicilio ? "A domicilio" : "En taller";
 
       if (exigenDomicilio && !direccionRef) {
         document.getElementById("cliModalidad").value = "A domicilio";
@@ -1770,6 +1851,8 @@
         document.getElementById("cliDireccionRef").focus();
         return;
       }
+
+      const summary = getCartSummaryText(cartItems, reqLang);
 
       btn.disabled = true;
       statusEl.textContent = msgDict.submittingTurn;
@@ -1782,7 +1865,9 @@
           hora_aproximada: agendaTexto,
           modelo: vehiculo,
           modalidad,
-          direccion_referencia: exigenDomicilio ? direccionRef : ""
+          direccion_referencia: exigenDomicilio ? direccionRef : "",
+          metodo_pago: pago,
+          servicios: summary.servicesText
         });
 
         if (!res || !res.ok || !res.data) {
@@ -1814,6 +1899,7 @@
 
         ultimoCodigoGenerado = createdId;
         cartItems = [];
+        setConflictWarning("");
         renderCart();
         document.getElementById("formTurno").reset();
         toggleDireccionDomicilio();
@@ -1942,6 +2028,7 @@
             estatus: meta.estatus || "En fila",
             modalidad: meta.modalidad || "En taller",
             direccion_referencia: meta.direccionRef || "",
+            metodo_pago: meta.pago || "POS",
             observaciones: []
           });
         }
@@ -2049,7 +2136,7 @@
 
     function construirMensajeCliente(orden, meta) {
       const items = (meta && Array.isArray(meta.items)) ? meta.items : [];
-      const pago = (meta && meta.pago) || "POS";
+      const pago = (meta && meta.pago) || orden.metodo_pago || "POS";
       const modalidad = (meta && meta.modalidad) || orden.modalidad || "En taller";
       const direccionRef = (meta && meta.direccionRef) || orden.direccion_referencia || "";
       const summary = getCartSummaryText(items, "es");
@@ -2079,7 +2166,7 @@
 
       const detalleServicios = summary.linesList.length
         ? summary.linesList.join("\n")
-        : `- ${summary.servicesText}`;
+        : `- ${orden.servicios || summary.servicesText}`;
 
       return [
         cabecera,
@@ -2097,10 +2184,10 @@
       const est = document.getElementById("filtroEstatusTaller").value;
 
       const rows = ordenesAdmin.filter(o => {
-        const meta = ordersMeta[o.id] || { pago: "POS", modalidad: "En taller", direccionRef: "", items: [] };
+        const meta = ordersMeta[o.id] || { pago: o.metodo_pago || "POS", modalidad: o.modalidad || "En taller", direccionRef: o.direccion_referencia || "", items: [] };
         const dirRef = meta.direccionRef || o.direccion_referencia || "";
         const matchEst = est === "TODOS" || o.estatus === est;
-        const blob = `${o.id} ${o.cliente_nombre} ${o.cliente_telefono} ${o.modelo} ${o.placa} ${meta.modalidad || ""} ${dirRef}`.toLowerCase();
+        const blob = `${o.id} ${o.cliente_nombre} ${o.cliente_telefono} ${o.modelo} ${o.placa} ${meta.modalidad || ""} ${dirRef} ${o.servicios || ""}`.toLowerCase();
         return matchEst && (!q || blob.includes(q));
       });
 
@@ -2113,10 +2200,12 @@
       body.innerHTML = rows.map(o => {
         const visitas = contarVisitas(o);
         const waNum = normalizarTel(o.cliente_telefono);
-        const meta = ordersMeta[o.id] || { pago: "POS", modalidad: "En taller", direccionRef: "", items: [] };
+        const meta = ordersMeta[o.id] || { pago: o.metodo_pago || "POS", modalidad: o.modalidad || "En taller", direccionRef: o.direccion_referencia || "", items: [] };
         const modalidad = meta.modalidad || o.modalidad || "En taller";
         const dirRef = meta.direccionRef || o.direccion_referencia || "";
+        const pago = meta.pago || o.metodo_pago || "POS";
         const summary = getCartSummaryText(meta.items, "es");
+        const serviciosMostrar = meta.items && meta.items.length ? summary.servicesText : (o.servicios || summary.servicesText);
         const msgCliente = construirMensajeCliente(o, meta);
         const msgWa = encodeURIComponent(msgCliente);
         const msgSms = encodeURIComponent(msgCliente);
@@ -2131,10 +2220,10 @@
               ${waNum ? `<br><a class="btn-wa-mini" href="https://wa.me/${waNum}?text=${msgWa}" target="_blank" rel="noopener noreferrer">WhatsApp (+${waNum})</a>` : ""}
             </td>
             <td>
-              <div><b>Pago:</b> <b>${esc(meta.pago || "POS")}</b></div>
-              <div><span class="mode-pill">${esc(modalidad)}</span></div>
+              <div><b>Pago:</b> <b>${esc(pago)}</b></div>
+              <div><span class="${modalidad === "A domicilio" ? "mode-pill" : "shop-pill"}">${esc(modalidad)}</span></div>
               ${modalidad === "A domicilio" && dirRef ? `<div><small><b>Dirección:</b> ${esc(dirRef)}</small></div>` : ""}
-              <small>${esc(summary.servicesText)}</small>
+              <small>${esc(serviciosMostrar)}</small>
             </td>
             <td>
               <b>${esc(o.modelo || "Sin modelo")}</b><br>
