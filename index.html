@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AKAD Mobile Mechanics — Queue & Shop Panel</title>
+  <title>AKAD Mobile Mechanics — Queue &amp; Services</title>
   <style>
     :root {
       --bg: #111114;
@@ -15,8 +15,8 @@
       --accent-dark: #C84D12;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: #F5F2EE; min-height: 100vh; padding: 18px 14px 52px; }
-    .wrap { max-width: 1120px; margin: 0 auto; }
+    body { background: var(--bg); color: #F5F2EE; min-height: 100vh; padding: 18px 14px 84px; }
+    .wrap { max-width: 1140px; margin: 0 auto; }
 
     .topbar {
       background: linear-gradient(135deg, #0E0E11 0%, #221914 68%, var(--accent) 160%);
@@ -47,7 +47,19 @@
     .logo-slot img { width: 100%; height: 100%; object-fit: contain; display: none; }
     .logo-slot.has-img img { display: block; }
     .logo-slot.has-img .default-logo { display: none; }
-    .brand h1 { font-size: 19px; font-weight: 800; letter-spacing: 0.2px; }
+
+    .entity-title-btn {
+      background: none;
+      border: none;
+      color: #FFF;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      text-align: left;
+      padding: 0;
+    }
+    .entity-title-btn:hover { color: #FFD7C2; text-decoration: underline; text-underline-offset: 3px; }
     .brand p { font-size: 12.5px; color: #E7DFD8; margin-top: 2px; }
 
     .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -66,6 +78,9 @@
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
     .lang-btn.active { background: #FFF; color: var(--ink); }
 
@@ -96,9 +111,25 @@
     }
     .card-light h2 { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
 
-    .services-grid {
+    .info-strip {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .info-chip {
+      background: #FAF8F5;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+    }
+    .info-chip strong { display: block; font-size: 11.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+    .info-chip span { font-weight: 700; color: var(--ink); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 12px;
     }
     .service-item {
@@ -109,7 +140,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
     }
     .service-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .service-title { font-size: 14px; font-weight: 800; color: var(--ink); }
@@ -127,13 +158,44 @@
       background: #EEF2FF;
       color: #1E40AF;
       font-weight: 800;
-      font-size: 11.5px;
+      font-size: 11px;
       padding: 3px 8px;
       border-radius: 999px;
       white-space: nowrap;
     }
     .service-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
-    .pay-note { font-size: 12px; color: var(--muted); margin-top: 12px; font-weight: 600; }
+    .pay-note { font-size: 12.5px; color: var(--muted); margin-top: 12px; }
+
+    .cart-box {
+      margin-top: 16px;
+      border: 1.5px solid var(--border);
+      background: #FAF8F5;
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .cart-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #FFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .cart-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 13.5px;
+      font-weight: 800;
+    }
 
     .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
     .field { margin-bottom: 12px; }
@@ -148,6 +210,10 @@
       font-size: 13.5px;
     }
     .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); background: #FFF; }
+
+    .phone-split { display: flex; gap: 8px; }
+    .phone-split select { width: 124px; flex-shrink: 0; }
+    .phone-split input { flex: 1; }
 
     .notice-box {
       background: #FFF7ED;
@@ -262,6 +328,26 @@
     }
     .status-msg { font-size: 12.5px; font-weight: 700; margin-top: 8px; color: var(--muted); }
     .err-msg { color: #B91C1C; }
+
+    .floating-wa {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 999;
+      background: #25D366;
+      color: #FFF;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: 13.5px;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+    }
+    .floating-wa:hover { background: #1FB858; transform: translateY(-2px); }
   </style>
 </head>
 <body>
@@ -275,29 +361,44 @@
           </svg>
         </div>
         <div>
-          <h1>AKAD Mobile Mechanics</h1>
-          <p id="tSubtitle">Turn Queue, Live Status &amp; Shop Control</p>
+          <button type="button" class="entity-title-btn" id="entityTitleBtn" onclick="abrirAccesoAdminPorTitulo()">AKAD Mobile Mechanics</button>
+          <p id="tSubtitle">Turn Queue &amp; Live Status</p>
         </div>
       </div>
 
       <div class="header-controls">
         <div class="lang-switch" role="group" aria-label="Language switcher">
-          <button type="button" class="lang-btn active" id="btnLangEn" onclick="setLang('en')">EN</button>
-          <button type="button" class="lang-btn" id="btnLangEs" onclick="setLang('es')">ES</button>
+          <button type="button" class="lang-btn active" id="btnLangEn" onclick="setLang('en')">🇺🇸 EN</button>
+          <button type="button" class="lang-btn" id="btnLangEs" onclick="setLang('es')">🇪🇸 ES</button>
         </div>
 
         <nav class="nav-tabs">
           <button class="tab-btn active" type="button" id="tabBtnTurno" onclick="switchTab('tabTurno', this)">1. Book Turn</button>
           <button class="tab-btn" type="button" id="tabBtnCola" onclick="switchTab('tabCola', this)">2. Live Queue</button>
-          <button class="tab-btn" type="button" id="tabBtnTaller" onclick="switchTab('tabTaller', this)">3. Shop Panel</button>
         </nav>
       </div>
     </header>
 
-    <!-- 1. QUICK CLIENT FORM + AKAD SERVICES -->
+    <!-- 1. BOOK TURN + SERVICES + CART -->
     <section id="tabTurno" class="panel active">
       <div class="card-light">
         <h2 id="tFormTitle">Request a Turn</h2>
+
+        <div class="info-strip">
+          <div class="info-chip">
+            <strong id="tHoursLabel">Business Hours</strong>
+            <span id="tHoursValue">Mon – Sat · 8:30 AM – 6:00 PM</span>
+          </div>
+          <div class="info-chip">
+            <strong id="tPhoneInfoLabel">Phone</strong>
+            <span>+1 321 9146552</span>
+          </div>
+          <div class="info-chip">
+            <strong id="tEmailInfoLabel">Email</strong>
+            <span id="tEmailInfoValue">akadmechanics@gmail.com</span>
+          </div>
+        </div>
+
         <form id="formTurno" onsubmit="crearTurno(event)">
           <div class="grid-2">
             <div class="field">
@@ -305,46 +406,82 @@
               <input type="text" id="cliNombre" required />
             </div>
             <div class="field">
-              <label for="cliTelefono" id="lblTelefono">Phone / WhatsApp *</label>
-              <input type="tel" id="cliTelefono" required placeholder="+1 407 555 0199" />
+              <label for="cliPhoneLocal" id="lblTelefono">Phone number *</label>
+              <div class="phone-split">
+                <select id="cliPhoneRegion" aria-label="Region code">
+                  <option value="+1">🇺🇸 +1 (US / CA)</option>
+                  <option value="+57">🇨🇴 +57 (CO)</option>
+                  <option value="+58">🇻🇪 +58 (VE)</option>
+                  <option value="+52">🇲🇽 +52 (MX)</option>
+                  <option value="+34">🇪🇸 +34 (ES)</option>
+                </select>
+                <input type="tel" id="cliPhoneLocal" required placeholder="407 555 0199" />
+              </div>
             </div>
           </div>
 
           <div class="grid-2">
             <div class="field">
-              <label for="cliHoraAprox" id="lblHora">Approximate arrival time *</label>
-              <select id="cliHoraAprox" required>
-                <option value="08:00 AM">08:00 AM</option>
-                <option value="09:00 AM">09:00 AM</option>
-                <option value="10:00 AM">10:00 AM</option>
-                <option value="11:00 AM">11:00 AM</option>
-                <option value="12:00 PM">12:00 PM</option>
-                <option value="01:00 PM">01:00 PM</option>
-                <option value="02:00 PM">02:00 PM</option>
-                <option value="03:00 PM">03:00 PM</option>
-                <option value="04:00 PM">04:00 PM</option>
-                <option value="05:00 PM">05:00 PM</option>
-              </select>
-              <div class="notice-box" id="tTimeNotice">
-                Selected time is approximate and subject to change or rescheduling. We will notify you on WhatsApp when we take your order.
-              </div>
+              <label for="cliFecha" id="lblFecha">Preferred date (Mon – Sat) *</label>
+              <input type="date" id="cliFecha" required onchange="validarFechaLaboral()" />
             </div>
 
+            <div class="field">
+              <label for="cliFranja" id="lblFranja">Service hour window (8:30 AM – 6:00 PM) *</label>
+              <select id="cliFranja" required>
+                <option value="8:30 AM - 9:30 AM">8:30 AM - 9:30 AM</option>
+                <option value="9:30 AM - 10:30 AM">9:30 AM - 10:30 AM</option>
+                <option value="10:30 AM - 11:30 AM">10:30 AM - 11:30 AM</option>
+                <option value="11:30 AM - 12:30 PM">11:30 AM - 12:30 PM</option>
+                <option value="12:30 PM - 1:30 PM">12:30 PM - 1:30 PM</option>
+                <option value="1:30 PM - 2:30 PM">1:30 PM - 2:30 PM</option>
+                <option value="2:30 PM - 3:30 PM">2:30 PM - 3:30 PM</option>
+                <option value="3:30 PM - 4:30 PM">3:30 PM - 4:30 PM</option>
+                <option value="4:30 PM - 6:00 PM">4:30 PM - 6:00 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="notice-box" id="tTimeNotice">
+            Open Monday to Saturday, 8:30 AM – 6:00 PM. Selected date and hour window are approximate and subject to change or rescheduling. We will reach out when we take your order.
+          </div>
+
+          <div class="grid-2" style="margin-top:12px;">
             <div class="field">
               <label for="cliVehiculo" id="lblVehiculo">Vehicle (Optional)</label>
               <input type="text" id="cliVehiculo" />
             </div>
+            <div class="field">
+              <label for="cliPago" id="lblPago">Payment method *</label>
+              <select id="cliPago" required>
+                <option value="POS">POS</option>
+                <option value="PayPal">PayPal</option>
+              </select>
+            </div>
           </div>
 
-          <button class="btn btn-primary" id="btnCrearTurno" type="submit">Generate Turn &amp; View Queue</button>
+          <!-- SHOPPING CART FOR SERVICES -->
+          <div class="cart-box">
+            <div style="font-size:14px;font-weight:800;" id="tCartTitle">Selected Services Cart</div>
+            <div class="cart-list" id="cartList"></div>
+            <div class="cart-summary">
+              <span id="tCartTotalLabel">Estimated Total:</span>
+              <span id="cartTotalValue">$0</span>
+            </div>
+            <div class="status-msg" id="cartPostServiceNote" style="margin-top:6px;"></div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button class="btn btn-primary" id="btnCrearTurno" type="submit">Submit Order &amp; View Queue</button>
+          </div>
           <div class="status-msg" id="turnoStatusMsg"></div>
         </form>
 
         <div class="ticket-box" id="ticketBox">
-          <div id="tTicketRegistered">Turn registered:</div>
+          <div id="tTicketRegistered">Order registered:</div>
           <div class="ticket-code" id="ticketCodigo"></div>
           <p style="font-size:12.5px;margin-top:4px;" id="tTicketHelp">
-            Save this code to check your status in the Live Queue. We will notify you on WhatsApp when we review or reschedule your time.
+            Save this code to check your status in the Live Queue.
           </p>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn btn-soft btn-sm" id="btnCopyCode" type="button" onclick="copiarCodigoTicket()">Copy code</button>
@@ -353,58 +490,11 @@
         </div>
       </div>
 
+      <!-- AKAD SERVICES CATALOG -->
       <div class="card-light">
         <h2 id="tServicesTitle">AKAD Services</h2>
-        <div class="services-grid">
-          <div class="service-item">
-            <div class="service-top">
-              <div class="service-title" id="srvDiagShopTitle">Shop Diagnostics &amp; Scanning</div>
-              <span class="service-price">$50</span>
-            </div>
-            <p class="service-desc" id="srvDiagShopDesc">In-shop scan and diagnostic check.</p>
-          </div>
-
-          <div class="service-item">
-            <div class="service-top">
-              <div class="service-title" id="srvDiagMobTitle">Mobile Diagnostic &amp; Repair</div>
-              <span class="service-price">$100</span>
-            </div>
-            <p class="service-desc" id="srvDiagMobDesc">On-site mobile diagnostic and repair service.</p>
-          </div>
-
-          <div class="service-item">
-            <div class="service-top">
-              <div class="service-title" id="srvBrakesTitle">Brake Repair</div>
-              <span class="service-tag" id="srvBrakesTag">Service</span>
-            </div>
-            <p class="service-desc" id="srvBrakesDesc">Brake inspection and repair service.</p>
-          </div>
-
-          <div class="service-item">
-            <div class="service-top">
-              <div class="service-title" id="srvElecTitle">Electrical Repair</div>
-              <span class="service-tag" id="srvElecTag">Service</span>
-            </div>
-            <p class="service-desc" id="srvElecDesc">Automotive electrical system troubleshooting and repair.</p>
-          </div>
-
-          <div class="service-item">
-            <div class="service-top">
-              <div class="service-title" id="srvSuspTitle">Suspension Repair</div>
-              <span class="service-tag" id="srvSuspTag">Service</span>
-            </div>
-            <p class="service-desc" id="srvSuspDesc">Suspension components inspection and repair.</p>
-          </div>
-
-          <div class="service-item">
-            <div class="service-top">
-              <div class="service-title" id="srvOilTitle">Oil Change Loyalty Program</div>
-              <span class="service-tag" id="srvOilTag">Loyalty</span>
-            </div>
-            <p class="service-desc" id="srvOilDesc">Recurring oil change loyalty program for returning customers.</p>
-          </div>
-        </div>
-        <p class="pay-note" id="tPaymentNote">Payments accepted via POS and PayPal.</p>
+        <div class="services-grid" id="servicesGrid"></div>
+        <p class="pay-note" id="tPaymentNote">Payments accepted via <strong>POS</strong> and <strong>PayPal</strong>.</p>
       </div>
     </section>
 
@@ -424,7 +514,7 @@
             <thead>
               <tr>
                 <th id="thOrder">Order</th>
-                <th id="thApproxTime">Approx. Time</th>
+                <th id="thApproxTime">Date &amp; Hour</th>
                 <th id="thStatus">Status</th>
               </tr>
             </thead>
@@ -435,46 +525,94 @@
       </div>
     </section>
 
-    <!-- 3. SHOP / ADMIN PANEL -->
+    <!-- 3. PANEL ADMIN (EN ESPAÑOL, ACCESO PULSANDO EL TÍTULO DE LA ENTIDAD) -->
     <section id="tabTaller" class="panel">
       <div class="card-light">
-        <h2 id="tPanelTitle">Shop Control &amp; History</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+          <h2 style="margin-bottom:0;">Panel Taller e Historial</h2>
+          <button class="btn btn-soft btn-sm" type="button" onclick="volverAFormulario()">Volver a turnos</button>
+        </div>
 
         <div id="loginTallerBox" style="max-width:420px;margin-bottom:16px;">
           <div class="field">
-            <label for="adminPinInput" id="lblPin">Shop PIN</label>
+            <label for="adminPinInput">PIN del taller</label>
             <input type="password" id="adminPinInput" placeholder="AKAD2026" />
           </div>
-          <button class="btn btn-primary btn-sm" id="btnEnterPanel" type="button" onclick="cargarPanelTaller(true)">Enter Panel</button>
+          <button class="btn btn-primary btn-sm" type="button" onclick="cargarPanelTaller(true)">Entrar al Panel</button>
           <div class="status-msg" id="tallerStatusMsg"></div>
         </div>
 
         <div id="tallerWorkspace" style="display:none;">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-            <span style="font-size:12.5px;color:var(--muted);font-weight:700;" id="tConnectedLabel">Connected to Google Sheets</span>
+            <span style="font-size:12.5px;color:var(--muted);font-weight:700;">Conectado a Google Sheets · Lunes a sábado 8:30 AM – 6:00 PM</span>
             <div style="display:flex;gap:8px;">
-              <button class="btn btn-soft btn-sm" id="btnReloadOrders" type="button" onclick="cargarPanelTaller(false)">Refresh orders</button>
-              <button class="btn btn-soft btn-sm" id="btnLockPanel" type="button" onclick="cerrarSesionTaller()">Lock</button>
+              <button class="btn btn-soft btn-sm" type="button" onclick="cargarPanelTaller(false)">Refrescar órdenes</button>
+              <button class="btn btn-soft btn-sm" type="button" onclick="cerrarSesionTaller()">Bloquear</button>
             </div>
           </div>
 
-          <!-- ADMIN LOGO UPLOADER -->
+          <!-- CORREO DE CONTACTO DE AKAD -->
           <div class="logo-admin-box">
-            <h3 style="font-size:14.5px;font-weight:800;margin-bottom:8px;" id="tLogoAdminTitle">Brand Logo (Admin)</h3>
+            <h3 style="font-size:14.5px;font-weight:800;margin-bottom:8px;">Correo Oficial de AKAD</h3>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input type="email" id="akadEmailInput" placeholder="akadmechanics@gmail.com" style="max-width:320px;" />
+              <button class="btn btn-primary btn-sm" type="button" onclick="guardarCorreoAkad()">Guardar correo</button>
+              <span class="status-msg" id="emailStatusMsg" style="margin-top:0;"></span>
+            </div>
+          </div>
+
+          <!-- ADJUNTAR LOGO DESDE MODO ADMIN -->
+          <div class="logo-admin-box">
+            <h3 style="font-size:14.5px;font-weight:800;margin-bottom:8px;">Adjuntar Logo de Marca (Admin)</h3>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
               <input type="file" id="adminLogoFile" accept="image/*" style="max-width:280px;" onchange="subirLogoAdmin(event)" />
-              <button class="btn btn-soft btn-sm" id="btnResetLogo" type="button" onclick="resetearLogoAdmin()">Reset default logo</button>
+              <button class="btn btn-soft btn-sm" type="button" onclick="resetearLogoAdmin()">Restaurar logo por defecto</button>
               <span class="status-msg" id="logoStatusMsg" style="margin-top:0;"></span>
             </div>
           </div>
 
+          <!-- GENERAR MÁS SERVICIOS PARA AKAD SERVICES -->
+          <div class="logo-admin-box">
+            <h3 style="font-size:14.5px;font-weight:800;margin-bottom:8px;">Agregar Nuevo Servicio a AKAD Services</h3>
+            <form id="formNuevoServicio" onsubmit="crearServicioAdmin(event)">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="srvNewEmoji">Emoji del servicio *</label>
+                  <input type="text" id="srvNewEmoji" value="🔧" maxlength="8" required />
+                </div>
+                <div class="field">
+                  <label for="srvNewPrice">Precio fijo opcional (vacío = se define al finalizar)</label>
+                  <input type="number" id="srvNewPrice" min="0" step="1" placeholder="Ej. 75" />
+                </div>
+                <div class="field">
+                  <label for="srvNewEnTitle">Título (EN) *</label>
+                  <input type="text" id="srvNewEnTitle" placeholder="e.g. Battery & Alternator Check" required />
+                </div>
+                <div class="field">
+                  <label for="srvNewEsTitle">Título (ES) *</label>
+                  <input type="text" id="srvNewEsTitle" placeholder="Ej. Revisión de Batería y Alternador" required />
+                </div>
+                <div class="field">
+                  <label for="srvNewEnDesc">Descripción (EN) *</label>
+                  <input type="text" id="srvNewEnDesc" placeholder="e.g. Charging system and battery load test." required />
+                </div>
+                <div class="field">
+                  <label for="srvNewEsDesc">Descripción (ES) *</label>
+                  <input type="text" id="srvNewEsDesc" placeholder="Ej. Prueba de carga y estado de batería." required />
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" type="submit">+ Publicar en AKAD Services</button>
+              <span class="status-msg" id="newSrvStatusMsg" style="margin-left:8px;"></span>
+            </form>
+          </div>
+
           <div class="grid-2" style="margin-top:14px;margin-bottom:12px;">
             <div class="field" style="margin-bottom:0;">
-              <label for="filtroTaller" id="lblFilterOrders">Filter by Order, Client, Phone, Model or Plate</label>
-              <input type="text" id="filtroTaller" oninput="renderTablaTaller()" />
+              <label for="filtroTaller">Filtrar por Orden, Cliente, Teléfono, Modelo o Placa</label>
+              <input type="text" id="filtroTaller" placeholder="Escribe placa, teléfono, nombre o código..." oninput="renderTablaTaller()" />
             </div>
             <div class="field" style="margin-bottom:0;">
-              <label for="filtroEstatusTaller" id="lblFilterStatus">Filter by status</label>
+              <label for="filtroEstatusTaller">Filtrar por estatus</label>
               <select id="filtroEstatusTaller" onchange="renderTablaTaller()"></select>
             </div>
           </div>
@@ -483,69 +621,70 @@
             <table>
               <thead>
                 <tr>
-                  <th id="thAdmOrder">Order / Time</th>
-                  <th id="thAdmClient">Client / Phone</th>
-                  <th id="thAdmVehicle">Model / Plate</th>
-                  <th id="thAdmStatus">Status</th>
-                  <th id="thAdmActions">Actions</th>
+                  <th>Orden / Agenda</th>
+                  <th>Cliente / Teléfono</th>
+                  <th>Servicios / Pago</th>
+                  <th>Modelo / Placa</th>
+                  <th>Estatus</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody id="tallerBody"></tbody>
             </table>
           </div>
 
-          <!-- QUICK EDITOR: MODEL, PLATE, STATUS, TIME & OBSERVATIONS -->
+          <!-- EDITOR RÁPIDO: MODELO, PLACA, ESTATUS, AGENDA Y OBSERVACIONES -->
           <div class="editor-box" id="editorOrdenBox">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;">
-              <h3 style="font-size:15px;font-weight:800;"><span id="tEditingPrefix">Editing Order:</span> <span id="editOrdenId"></span></h3>
-              <button class="btn btn-soft btn-sm" id="btnCloseEditor" type="button" onclick="cerrarEditor()">Close</button>
+              <h3 style="font-size:15px;font-weight:800;">Editando Orden: <span id="editOrdenId"></span></h3>
+              <button class="btn btn-soft btn-sm" type="button" onclick="cerrarEditor()">Cerrar</button>
             </div>
 
             <div class="grid-2">
               <div class="field">
-                <label for="editModelo" id="lblEditModel">Vehicle model</label>
-                <input type="text" id="editModelo" />
+                <label for="editModelo">Modelo del vehículo</label>
+                <input type="text" id="editModelo" placeholder="Ej. Mazda 3 2018" />
               </div>
               <div class="field">
-                <label for="editPlaca" id="lblEditPlate">Plate</label>
-                <input type="text" id="editPlaca" />
+                <label for="editPlaca">Placa</label>
+                <input type="text" id="editPlaca" placeholder="Ej. ABC-1234" />
               </div>
               <div class="field">
-                <label for="editEstatus" id="lblEditStatus">Status</label>
+                <label for="editEstatus">Estatus</label>
                 <select id="editEstatus"></select>
               </div>
               <div class="field">
-                <label for="editHora" id="lblEditTime">Time (adjustable if rescheduled)</label>
-                <input type="text" id="editHora" />
+                <label for="editHora">Fecha y franja (ajustable si se reprograma)</label>
+                <input type="text" id="editHora" placeholder="Ej. 2026-11-27 | 8:30 AM - 9:30 AM" />
               </div>
             </div>
 
-            <button class="btn btn-primary btn-sm" id="btnGuardarOrden" type="button" onclick="guardarCambiosOrden()">Save Model / Plate / Status</button>
+            <button class="btn btn-primary btn-sm" id="btnGuardarOrden" type="button" onclick="guardarCambiosOrden()">Guardar Modelo / Placa / Estatus</button>
             <span class="status-msg" id="editorStatusMsg" style="margin-left:8px;"></span>
 
             <hr style="margin:14px 0;border:none;border-top:1px solid var(--border);" />
 
-            <h4 style="font-size:13.5px;font-weight:800;margin-bottom:8px;" id="tObsTitle">Shop observations (internal log)</h4>
+            <h4 style="font-size:13.5px;font-weight:800;margin-bottom:8px;">Observaciones del taller (registro interno)</h4>
             <div class="grid-2">
               <div class="field" style="margin-bottom:6px;">
-                <label for="obsMecanico" id="lblObsMech">Mechanic (optional)</label>
-                <input type="text" id="obsMecanico" />
+                <label for="obsMecanico">Mecánico (opcional)</label>
+                <input type="text" id="obsMecanico" placeholder="Ej. Luis" />
               </div>
               <div class="field" style="margin-bottom:6px;">
-                <label for="obsTexto" id="lblObsText">New observation</label>
-                <input type="text" id="obsTexto" />
+                <label for="obsTexto">Nueva observación</label>
+                <input type="text" id="obsTexto" placeholder="Ej. Fuga en manguera superior, falta confirmar repuesto" />
               </div>
             </div>
-            <button class="btn btn-soft btn-sm" id="btnAgregarObs" type="button" onclick="agregarObservacion()">+ Add Observation</button>
+            <button class="btn btn-soft btn-sm" id="btnAgregarObs" type="button" onclick="agregarObservacion()">+ Agregar Observación</button>
 
             <div class="obs-list" id="obsLista"></div>
           </div>
 
-          <!-- HISTORY BY PHONE OR PLATE -->
+          <!-- HISTORIAL POR TELÉFONO O PLACA -->
           <div class="history-box" id="historialBox">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <h3 style="font-size:14.5px;font-weight:800;color:#0F172A;"><span id="tHistPrefix">Visit History:</span> <span id="historialTitulo"></span></h3>
-              <button class="btn btn-soft btn-sm" id="btnCloseHist" type="button" onclick="document.getElementById('historialBox').style.display='none'">Close</button>
+              <h3 style="font-size:14.5px;font-weight:800;color:#0F172A;">Historial de Visitas: <span id="historialTitulo"></span></h3>
+              <button class="btn btn-soft btn-sm" type="button" onclick="document.getElementById('historialBox').style.display='none'">Cerrar</button>
             </div>
             <div id="historialContenido" style="font-size:12.5px;color:#1E293B;"></div>
           </div>
@@ -554,12 +693,23 @@
     </section>
   </div>
 
+  <!-- BOTÓN FLOTANTE DE WHATSAPP EN ESQUINA INFERIOR DERECHA -->
+  <a id="floatingWaBtn" class="floating-wa" href="https://wa.me/13219146552" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+    <span>💬</span>
+    <span id="floatingWaLabel">WhatsApp</span>
+  </a>
+
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwHgoFWSWlAZwQaLXl7HxNTqQwN-eyY2HKk7tEayRckIz9xygPxSp8aqcvKCV8gKMw/exec";
+    const AKAD_WA_NUMBER = "13219146552";
+    const DEFAULT_AKAD_EMAIL = "akadmechanics@gmail.com";
     const CACHE_QUEUE_KEY = "akad_queue_cache_v1";
     const PIN_SESSION_KEY = "akad_taller_pin_v1";
     const LOGO_STORAGE_KEY = "akad_custom_logo_v1";
     const LANG_STORAGE_KEY = "akad_lang_v1";
+    const META_STORAGE_KEY = "akad_orders_meta_v1";
+    const CUSTOM_SERVICES_KEY = "akad_custom_services_v1";
+    const EMAIL_STORAGE_KEY = "akad_contact_email_v1";
 
     const STATUS_KEYS = [
       "En fila", "Aceptada", "Reprogramada", "En revisión",
@@ -567,110 +717,117 @@
       "Completada", "Rechazada"
     ];
 
+    const DEFAULT_SERVICES = [
+      {
+        id: "diag_shop",
+        emoji: "🖥️",
+        price: 50,
+        badgeType: "price",
+        enTitle: "Shop Diagnostics & Scanning",
+        esTitle: "Diagnóstico y Escaneo en Taller",
+        enDesc: "In-shop scan and diagnostic check.",
+        esDesc: "Escaneo y revisión diagnóstica en taller."
+      },
+      {
+        id: "diag_mobile",
+        emoji: "🚐",
+        price: 100,
+        badgeType: "price",
+        enTitle: "Mobile Diagnostic & Repair",
+        esTitle: "Diagnóstico y Reparación Móvil",
+        enDesc: "On-site mobile diagnostic and repair service.",
+        esDesc: "Servicio de diagnóstico y reparación a domicilio."
+      },
+      {
+        id: "brakes",
+        emoji: "🛑",
+        price: null,
+        badgeType: "service",
+        enTitle: "Brake Repair",
+        esTitle: "Reparación de Frenos",
+        enDesc: "Brake inspection and repair service.",
+        esDesc: "Revisión y reparación del sistema de frenos."
+      },
+      {
+        id: "electrical",
+        emoji: "⚡",
+        price: null,
+        badgeType: "service",
+        enTitle: "Electrical Repair",
+        esTitle: "Reparación Eléctrica",
+        enDesc: "Automotive electrical system troubleshooting and repair.",
+        esDesc: "Diagnóstico y reparación eléctrica automotriz."
+      },
+      {
+        id: "suspension",
+        emoji: "🛞",
+        price: null,
+        badgeType: "service",
+        enTitle: "Suspension Repair",
+        esTitle: "Reparación de Suspensión",
+        enDesc: "Suspension components inspection and repair.",
+        esDesc: "Revisión y reparación de componentes de suspensión."
+      },
+      {
+        id: "oil_loyalty",
+        emoji: "🛢️",
+        price: null,
+        badgeType: "loyalty",
+        enTitle: "Oil Change Loyalty Program",
+        esTitle: "Programa de Lealtad de Cambio de Aceite",
+        enDesc: "Recurring oil change loyalty program for returning customers.",
+        esDesc: "Programa de fidelidad en cambios de aceite para clientes recurrentes."
+      }
+    ];
+
     const I18N = {
       en: {
         htmlLang: "en",
-        docTitle: "AKAD Mobile Mechanics — Queue & Shop Panel",
-        subtitle: "Turn Queue, Live Status & Shop Control",
+        docTitle: "AKAD Mobile Mechanics — Queue & Services",
+        subtitle: "Turn Queue & Live Status",
         tabTurno: "1. Book Turn",
         tabCola: "2. Live Queue",
-        tabTaller: "3. Shop Panel",
         formTitle: "Request a Turn",
+        hoursLabel: "Business Hours",
+        hoursValue: "Mon – Sat · 8:30 AM – 6:00 PM",
+        phoneInfoLabel: "Phone",
+        emailInfoLabel: "Email",
         lblNombre: "Name *",
         phNombre: "e.g. John Doe",
-        lblTelefono: "Phone / WhatsApp *",
-        lblHora: "Approximate arrival time *",
-        timeNotice: "Selected time is approximate and subject to change or rescheduling. We will notify you on WhatsApp when we take your order.",
+        lblTelefono: "Phone number *",
+        lblFecha: "Preferred date (Mon – Sat) *",
+        lblFranja: "Service hour window (8:30 AM – 6:00 PM) *",
+        sundayErr: "We are closed on Sundays. Please select a date from Monday to Saturday.",
+        timeNotice: "Open Monday to Saturday, 8:30 AM – 6:00 PM. Selected date and hour window are approximate and subject to change or rescheduling. We will reach out when we take your order.",
         lblVehiculo: "Vehicle (Optional)",
         phVehiculo: "e.g. Toyota Corolla 2019 (or leave blank)",
-        btnCrearTurno: "Generate Turn & View Queue",
-        submittingTurn: "Registering your turn...",
-        errCreateTurn: "Could not register the turn.",
-        ticketRegistered: "Turn registered:",
-        ticketHelp: "Save this code to check your status in the Live Queue. We will notify you on WhatsApp when we review or reschedule your time.",
+        lblPago: "Payment method *",
+        cartTitle: "Selected Services Cart",
+        cartEmpty: "No services added yet. You can add one or more services below.",
+        btnAddCart: "+ Add to cart",
+        btnRemoveCart: "Remove",
+        cartTotalLabel: "Estimated Total:",
+        cartPostServiceNote: "Fixed-price services are summed above. For other services without a preset amount, the price is determined after completing the service.",
+        paymentNoteHtml: "Payments accepted via <strong>POS</strong> and <strong>PayPal</strong>.",
+        tagService: "Service",
+        tagLoyalty: "Loyalty",
+        btnCrearTurno: "Submit Order & View Queue",
+        submittingTurn: "Registering your order...",
+        errCreateTurn: "Could not register the order.",
+        ticketRegistered: "Order registered:",
+        ticketHelp: "Save this code to check your status in the Live Queue.",
         btnCopyCode: "Copy code",
         btnViewQueue: "View in Queue",
         servicesTitle: "AKAD Services",
-        srvDiagShopTitle: "Shop Diagnostics & Scanning",
-        srvDiagShopDesc: "In-shop scan and diagnostic check.",
-        srvDiagMobTitle: "Mobile Diagnostic & Repair",
-        srvDiagMobDesc: "On-site mobile diagnostic and repair service.",
-        srvBrakesTitle: "Brake Repair",
-        srvBrakesTag: "Service",
-        srvBrakesDesc: "Brake inspection and repair service.",
-        srvElecTitle: "Electrical Repair",
-        srvElecTag: "Service",
-        srvElecDesc: "Automotive electrical system troubleshooting and repair.",
-        srvSuspTitle: "Suspension Repair",
-        srvSuspTag: "Service",
-        srvSuspDesc: "Suspension components inspection and repair.",
-        srvOilTitle: "Oil Change Loyalty Program",
-        srvOilTag: "Loyalty",
-        srvOilDesc: "Recurring oil change loyalty program for returning customers.",
-        paymentNote: "Payments accepted via POS and PayPal.",
         queueTitle: "Orders Queue",
         btnRefreshQueue: "Refresh queue",
         lblSearchQueue: "Search by order code",
         thOrder: "Order",
-        thApproxTime: "Approx. Time",
+        thApproxTime: "Date & Hour",
         thStatus: "Status",
         emptyQueue: "No orders in the queue to display.",
         updatingQueue: "Updating queue...",
         errQueue: "Could not refresh the queue.",
-        panelTitle: "Shop Control & History",
-        lblPin: "Shop PIN",
-        btnEnterPanel: "Enter Panel",
-        errMissingPin: "Enter the shop PIN.",
-        loadingOrders: "Loading orders...",
-        errInvalidPin: "Invalid PIN.",
-        errPanel: "Could not load panel.",
-        connectedLabel: "Connected to Google Sheets",
-        btnReloadOrders: "Refresh orders",
-        btnLockPanel: "Lock",
-        logoAdminTitle: "Brand Logo (Admin)",
-        btnResetLogo: "Reset default logo",
-        logoUpdated: "Logo updated.",
-        logoReset: "Default logo restored.",
-        logoErr: "Could not load image.",
-        lblFilterOrders: "Filter by Order, Client, Phone, Model or Plate",
-        phFilterOrders: "Type plate, phone, name or code...",
-        lblFilterStatus: "Filter by status",
-        allStatuses: "All",
-        thAdmOrder: "Order / Time",
-        thAdmClient: "Client / Phone",
-        thAdmVehicle: "Model / Plate",
-        thAdmStatus: "Status",
-        thAdmActions: "Actions",
-        emptyAdmin: "No matching orders.",
-        visitsBadge: (n) => `${n} visits`,
-        noModel: "No model",
-        platePrefix: "Plate:",
-        btnEdit: "Edit",
-        btnHistory: "History",
-        editingPrefix: "Editing Order:",
-        btnCloseEditor: "Close",
-        lblEditModel: "Vehicle model",
-        lblEditPlate: "Plate",
-        lblEditStatus: "Status",
-        lblEditTime: "Time (adjustable if rescheduled)",
-        btnGuardarOrden: "Save Model / Plate / Status",
-        saving: "Saving...",
-        saved: "Saved.",
-        errSave: "Could not save.",
-        obsTitle: "Shop observations (internal log)",
-        lblObsMech: "Mechanic (optional)",
-        phObsMech: "e.g. Luis",
-        lblObsText: "New observation",
-        phObsText: "e.g. Upper hose leak, waiting to confirm part",
-        btnAgregarObs: "+ Add Observation",
-        addingObs: "Adding observation...",
-        obsSaved: "Observation saved.",
-        errObs: "Could not add observation.",
-        noObs: "No observations recorded yet.",
-        histPrefix: "Visit History:",
-        btnCloseHist: "Close",
-        histVehicle: "Vehicle:",
-        histPlate: "Plate:",
         statuses: {
           "En fila": "In Queue",
           "Aceptada": "Accepted",
@@ -685,107 +842,51 @@
       },
       es: {
         htmlLang: "es",
-        docTitle: "AKAD Mobile Mechanics — Cola de Órdenes y Taller",
-        subtitle: "Turnos, Cola de Atención y Registro de Taller",
+        docTitle: "AKAD Mobile Mechanics — Cola de Órdenes y Servicios",
+        subtitle: "Turnos y Cola de Atención",
         tabTurno: "1. Pedir Turno",
         tabCola: "2. Cola en Vivo",
-        tabTaller: "3. Panel Taller",
         formTitle: "Tomar Turno",
+        hoursLabel: "Horario de Atención",
+        hoursValue: "Lun – Sáb · 8:30 AM – 6:00 PM",
+        phoneInfoLabel: "Teléfono",
+        emailInfoLabel: "Correo",
         lblNombre: "Nombre *",
         phNombre: "Ej. Carlos Pérez",
-        lblTelefono: "Teléfono / WhatsApp *",
-        lblHora: "Hora aproximada de llegada *",
-        timeNotice: "La hora seleccionada es aproximada y está sujeta a cambios o reprogramación. Te notificaremos por WhatsApp al tomar tu orden.",
+        lblTelefono: "Número de teléfono *",
+        lblFecha: "Fecha deseada (Lun – Sáb) *",
+        lblFranja: "Franja horaria (8:30 AM – 6:00 PM) *",
+        sundayErr: "No trabajamos los domingos. Elige una fecha de lunes a sábado.",
+        timeNotice: "Atención de lunes a sábado de 8:30 AM a 6:00 PM. La fecha y franja horaria seleccionadas son aproximadas y están sujetas a cambios o reprogramación. Te contactaremos al tomar tu orden.",
         lblVehiculo: "Vehículo (Opcional)",
         phVehiculo: "Ej. Toyota Corolla 2019 (o deja en blanco)",
-        btnCrearTurno: "Generar Turno y Ver Cola",
-        submittingTurn: "Registrando tu turno...",
-        errCreateTurn: "No se pudo registrar el turno.",
-        ticketRegistered: "Turno registrado:",
-        ticketHelp: "Guarda este código para consultar tu estatus en la Cola en Vivo. Te avisaremos por WhatsApp al revisar o reprogramar tu hora.",
+        lblPago: "Método de pago *",
+        cartTitle: "Carrito de Servicios",
+        cartEmpty: "Aún no has agregado servicios. Puedes sumar servicios desde el catálogo.",
+        btnAddCart: "+ Agregar al carrito",
+        btnRemoveCart: "Quitar",
+        cartTotalLabel: "Total estimado:",
+        cartPostServiceNote: "Se suman los servicios con monto fijo. Si eliges otros servicios sin monto previo, el precio se define luego de finalizar el servicio.",
+        paymentNoteHtml: "Pagos aceptados por <strong>POS</strong> y <strong>PayPal</strong>.",
+        tagService: "Servicio",
+        tagLoyalty: "Lealtad",
+        btnCrearTurno: "Registrar Orden y Ver Cola",
+        submittingTurn: "Registrando tu orden...",
+        errCreateTurn: "No se pudo registrar la orden.",
+        ticketRegistered: "Orden registrada:",
+        ticketHelp: "Guarda este código para consultar tu estatus en la Cola en Vivo.",
         btnCopyCode: "Copiar código",
         btnViewQueue: "Ver en la Cola",
         servicesTitle: "Servicios de AKAD",
-        srvDiagShopTitle: "Diagnóstico y Escaneo en Taller",
-        srvDiagShopDesc: "Escaneo y revisión diagnóstica en taller.",
-        srvDiagMobTitle: "Diagnóstico y Reparación Móvil",
-        srvDiagMobDesc: "Servicio de diagnóstico y reparación a domicilio.",
-        srvBrakesTitle: "Reparación de Frenos",
-        srvBrakesTag: "Servicio",
-        srvBrakesDesc: "Revisión y reparación del sistema de frenos.",
-        srvElecTitle: "Reparación Eléctrica",
-        srvElecTag: "Servicio",
-        srvElecDesc: "Diagnóstico y reparación eléctrica automotriz.",
-        srvSuspTitle: "Reparación de Suspensión",
-        srvSuspTag: "Servicio",
-        srvSuspDesc: "Revisión y reparación de componentes de suspensión.",
-        srvOilTitle: "Programa de Lealtad de Cambio de Aceite",
-        srvOilTag: "Lealtad",
-        srvOilDesc: "Programa de fidelidad en cambios de aceite para clientes recurrentes.",
-        paymentNote: "Pagos aceptados por POS y PayPal.",
         queueTitle: "Cola de Órdenes",
         btnRefreshQueue: "Actualizar cola",
         lblSearchQueue: "Buscar por código de orden",
         thOrder: "Orden",
-        thApproxTime: "Hora Aprox.",
+        thApproxTime: "Fecha y Hora",
         thStatus: "Estatus",
         emptyQueue: "No hay órdenes en la cola por mostrar.",
         updatingQueue: "Actualizando cola...",
         errQueue: "No se pudo actualizar la cola.",
-        panelTitle: "Control de Taller e Historial",
-        lblPin: "PIN del taller",
-        btnEnterPanel: "Entrar al Panel",
-        errMissingPin: "Ingresa el PIN del taller.",
-        loadingOrders: "Cargando órdenes...",
-        errInvalidPin: "PIN inválido.",
-        errPanel: "Error al cargar el panel.",
-        connectedLabel: "Conectado a Google Sheets",
-        btnReloadOrders: "Refrescar órdenes",
-        btnLockPanel: "Bloquear",
-        logoAdminTitle: "Logo de Marca (Admin)",
-        btnResetLogo: "Restaurar logo por defecto",
-        logoUpdated: "Logo actualizado.",
-        logoReset: "Logo por defecto restaurado.",
-        logoErr: "No se pudo cargar la imagen.",
-        lblFilterOrders: "Filtrar por Orden, Cliente, Teléfono, Modelo o Placa",
-        phFilterOrders: "Escribe placa, teléfono, nombre o código...",
-        lblFilterStatus: "Filtrar por estatus",
-        allStatuses: "Todos",
-        thAdmOrder: "Orden / Hora",
-        thAdmClient: "Cliente / Teléfono",
-        thAdmVehicle: "Modelo / Placa",
-        thAdmStatus: "Estatus",
-        thAdmActions: "Acciones",
-        emptyAdmin: "Sin resultados.",
-        visitsBadge: (n) => `${n} visitas`,
-        noModel: "Sin modelo",
-        platePrefix: "Placa:",
-        btnEdit: "Editar",
-        btnHistory: "Historial",
-        editingPrefix: "Editando Orden:",
-        btnCloseEditor: "Cerrar",
-        lblEditModel: "Modelo del vehículo",
-        lblEditPlate: "Placa",
-        lblEditStatus: "Estatus",
-        lblEditTime: "Hora (ajustable si se reprograma)",
-        btnGuardarOrden: "Guardar Modelo / Placa / Estatus",
-        saving: "Guardando...",
-        saved: "Guardado.",
-        errSave: "Error al guardar.",
-        obsTitle: "Observaciones del taller (registro interno)",
-        lblObsMech: "Mecánico (opcional)",
-        phObsMech: "Ej. Luis",
-        lblObsText: "Nueva observación",
-        phObsText: "Ej. Fuga en manguera superior, falta confirmar repuesto",
-        btnAgregarObs: "+ Agregar Observación",
-        addingObs: "Agregando observación...",
-        obsSaved: "Observación guardada.",
-        errObs: "Error al agregar observación.",
-        noObs: "Sin observaciones registradas aún.",
-        histPrefix: "Historial de Visitas:",
-        btnCloseHist: "Cerrar",
-        histVehicle: "Vehículo:",
-        histPlate: "Placa:",
         statuses: {
           "En fila": "En fila",
           "Aceptada": "Aceptada",
@@ -803,34 +904,324 @@
     let currentLang = localStorage.getItem(LANG_STORAGE_KEY) === "es" ? "es" : "en";
     let colaPublica = cargarCacheCola();
     let ordenesAdmin = [];
+    let ordersMeta = cargarOrdersMeta();
+    let customServices = cargarCustomServices();
+    let cartItems = [];
     let ordenActivaId = null;
     let ultimoCodigoGenerado = "";
 
-    function t() {
-      return I18N[currentLang] || I18N.en;
+    function cargarCorreoAkad() {
+      const stored = localStorage.getItem(EMAIL_STORAGE_KEY);
+      return stored !== null ? stored.trim() : DEFAULT_AKAD_EMAIL;
     }
 
-    function statusLabel(rawStatus) {
+    function guardarCorreoAkad() {
+      const val = (document.getElementById("akadEmailInput").value || "").trim();
+      const msgEl = document.getElementById("emailStatusMsg");
+      msgEl.classList.remove("err-msg");
+      localStorage.setItem(EMAIL_STORAGE_KEY, val);
+      renderCorreoAkad();
+      msgEl.textContent = val ? "Correo guardado." : "Correo limpiado.";
+    }
+
+    function renderCorreoAkad() {
+      const saved = cargarCorreoAkad();
+      const viewEl = document.getElementById("tEmailInfoValue");
+      const inputEl = document.getElementById("akadEmailInput");
+      if (inputEl && document.activeElement !== inputEl) {
+        inputEl.value = saved;
+      }
+      if (viewEl) {
+        viewEl.textContent = saved || DEFAULT_AKAD_EMAIL;
+      }
+    }
+
+    function getAllServices() {
+      return DEFAULT_SERVICES.concat(customServices);
+    }
+
+    function cargarCustomServices() {
+      try {
+        const raw = localStorage.getItem(CUSTOM_SERVICES_KEY);
+        const parsed = JSON.parse(raw || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function guardarCustomServices() {
+      try {
+        localStorage.setItem(CUSTOM_SERVICES_KEY, JSON.stringify(customServices));
+      } catch (_) {}
+    }
+
+    function crearServicioAdmin(ev) {
+      ev.preventDefault();
+      const statusEl = document.getElementById("newSrvStatusMsg");
+      statusEl.classList.remove("err-msg");
+
+      const emoji = (document.getElementById("srvNewEmoji").value || "🔧").trim();
+      const rawPrice = document.getElementById("srvNewPrice").value.trim();
+      const parsedPrice = rawPrice === "" ? null : Number(rawPrice);
+      const hasValidPrice = typeof parsedPrice === "number" && !Number.isNaN(parsedPrice) && parsedPrice >= 0;
+
+      const enTitle = document.getElementById("srvNewEnTitle").value.trim();
+      const esTitle = document.getElementById("srvNewEsTitle").value.trim();
+      const enDesc = document.getElementById("srvNewEnDesc").value.trim();
+      const esDesc = document.getElementById("srvNewEsDesc").value.trim();
+
+      if (!enTitle || !esTitle || !enDesc || !esDesc) return;
+
+      customServices.push({
+        id: "custom_" + Date.now(),
+        emoji,
+        price: hasValidPrice ? parsedPrice : null,
+        badgeType: "service",
+        enTitle,
+        esTitle,
+        enDesc,
+        esDesc
+      });
+      guardarCustomServices();
+      renderServicesCatalog();
+
+      document.getElementById("formNuevoServicio").reset();
+      document.getElementById("srvNewEmoji").value = "🔧";
+      statusEl.textContent = "Servicio agregado a AKAD Services.";
+    }
+
+    function tClient(langCode) {
+      return I18N[langCode === "es" ? "es" : "en"];
+    }
+
+    function statusLabelClient(rawStatus, langCode) {
       const key = String(rawStatus || "En fila").trim();
-      return (t().statuses && t().statuses[key]) || key;
+      const map = tClient(langCode || currentLang).statuses || {};
+      return map[key] || key;
     }
 
-    function populateStatusSelects() {
+    function detectarIdiomaSolicitud(texto) {
+      const clean = String(texto || "").trim();
+      if (!clean) return currentLang;
+      const lower = clean.toLowerCase();
+      const esMarkers = /\b(hola|gracias|por favor|carro|coche|freno|frenos|aceite|bateria|batería|motor|ruido|taller|cambio|revision|revisión|necesito|quiero|ayuda|no enciende|averia|avería)\b|[áéíóúñ¿¡]/i;
+      if (esMarkers.test(lower)) return "es";
+      const enMarkers = /\b(hello|hi|please|thanks|thank you|car|brake|brakes|oil|battery|engine|noise|shop|service|repair|diagnostic|check|need|help|won't start|wont start|alternator|starter|tire|tires|wheel|suspension)\b/i;
+      if (enMarkers.test(lower)) return "en";
+      const asciiWords = clean.match(/[a-zA-Z]{2,}/g) || [];
+      if (asciiWords.length >= 2) return "en";
+      return currentLang;
+    }
+
+    function formatIsoDate(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function esDomingo(isoStr) {
+      if (!isoStr) return false;
+      const parts = isoStr.split("-").map(Number);
+      if (parts.length !== 3) return false;
+      const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+      return dt.getDay() === 0;
+    }
+
+    function ajustarSiEsDomingo(dateObj, maxDateObj) {
+      const d = new Date(dateObj);
+      if (d.getDay() === 0) {
+        d.setDate(d.getDate() + 1);
+      }
+      if (maxDateObj && d > maxDateObj) {
+        d.setTime(maxDateObj.getTime());
+        while (d.getDay() === 0) {
+          d.setDate(d.getDate() - 1);
+        }
+      }
+      return d;
+    }
+
+    function configurarRangoFechaAgenda() {
+      const input = document.getElementById("cliFecha");
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+
+      const enDosMeses = new Date(hoy);
+      enDosMeses.setMonth(enDosMeses.getMonth() + 2);
+
+      const finDeAno = new Date(hoy.getFullYear(), 11, 31);
+      const maxFecha = enDosMeses < finDeAno ? enDosMeses : finDeAno;
+
+      const minStr = formatIsoDate(hoy);
+      const maxStr = formatIsoDate(maxFecha);
+
+      input.min = minStr;
+      input.max = maxStr;
+
+      const inicial = ajustarSiEsDomingo(hoy, maxFecha);
+      input.value = formatIsoDate(inicial);
+    }
+
+    function validarFechaLaboral() {
+      const input = document.getElementById("cliFecha");
+      const statusEl = document.getElementById("turnoStatusMsg");
+      statusEl.classList.remove("err-msg");
+      if (esDomingo(input.value)) {
+        statusEl.classList.add("err-msg");
+        statusEl.textContent = tClient(currentLang).sundayErr;
+        return false;
+      }
+      statusEl.textContent = "";
+      return true;
+    }
+
+    function cargarOrdersMeta() {
+      try {
+        const raw = localStorage.getItem(META_STORAGE_KEY);
+        const parsed = JSON.parse(raw || "{}");
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function guardarOrdersMeta() {
+      try {
+        localStorage.setItem(META_STORAGE_KEY, JSON.stringify(ordersMeta));
+      } catch (_) {}
+    }
+
+    function addServiceToCart(serviceId) {
+      const srv = getAllServices().find(s => s.id === serviceId);
+      if (!srv) return;
+      cartItems.push({
+        uid: Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+        id: srv.id,
+        emoji: srv.emoji || "🔧",
+        price: srv.price,
+        badgeType: srv.badgeType,
+        enTitle: srv.enTitle,
+        esTitle: srv.esTitle
+      });
+      renderCart();
+    }
+
+    function removeServiceFromCart(uid) {
+      cartItems = cartItems.filter(item => item.uid !== uid);
+      renderCart();
+    }
+
+    function getCartSummaryText(items, langCode) {
+      const isEs = langCode === "es";
+      if (!items || !items.length) {
+        return {
+          servicesText: isEs ? "Por definir en taller" : "To be determined at shop",
+          hasFixedPrice: false,
+          hasPostServicePrice: true,
+          fixedTotal: 0
+        };
+      }
+      const names = items.map(i => `${i.emoji ? i.emoji + " " : ""}${isEs ? i.esTitle : i.enTitle}`);
+      let fixedTotal = 0;
+      let hasFixedPrice = false;
+      let hasPostServicePrice = false;
+
+      items.forEach(i => {
+        if (typeof i.price === "number") {
+          fixedTotal += i.price;
+          hasFixedPrice = true;
+        } else {
+          hasPostServicePrice = true;
+        }
+      });
+
+      return {
+        servicesText: names.join(", "),
+        hasFixedPrice,
+        hasPostServicePrice,
+        fixedTotal
+      };
+    }
+
+    function renderCart() {
+      const d = tClient(currentLang);
+      const listEl = document.getElementById("cartList");
+      const totalEl = document.getElementById("cartTotalValue");
+
+      if (!cartItems.length) {
+        listEl.innerHTML = `<div style="font-size:12.5px;color:var(--muted);">${esc(d.cartEmpty)}</div>`;
+        totalEl.textContent = "$0";
+        return;
+      }
+
+      let total = 0;
+      let hasVariable = false;
+
+      listEl.innerHTML = cartItems.map(item => {
+        const title = `${item.emoji ? item.emoji + " " : ""}${currentLang === "es" ? item.esTitle : item.enTitle}`;
+        let priceLabel = "";
+        if (typeof item.price === "number") {
+          total += item.price;
+          priceLabel = `$${item.price}`;
+        } else {
+          hasVariable = true;
+          priceLabel = item.badgeType === "loyalty" ? d.tagLoyalty : d.tagService;
+        }
+        return `
+          <div class="cart-row">
+            <span><b>${esc(title)}</b> — <span>${esc(priceLabel)}</span></span>
+            <button type="button" class="btn btn-soft btn-sm" onclick="removeServiceFromCart('${esc(item.uid)}')">${esc(d.btnRemoveCart)}</button>
+          </div>
+        `;
+      }).join("");
+
+      totalEl.textContent = hasVariable ? `$${total} +` : `$${total}`;
+    }
+
+    function renderServicesCatalog() {
+      const d = tClient(currentLang);
+      const grid = document.getElementById("servicesGrid");
+      grid.innerHTML = getAllServices().map(srv => {
+        const baseTitle = currentLang === "es" ? srv.esTitle : srv.enTitle;
+        const title = `${baseTitle} ${srv.emoji || ""}`.trim();
+        const desc = currentLang === "es" ? srv.esDesc : srv.enDesc;
+        const badgeHtml = typeof srv.price === "number"
+          ? `<span class="service-price">$${srv.price}</span>`
+          : `<span class="service-tag">${esc(srv.badgeType === "loyalty" ? d.tagLoyalty : d.tagService)}</span>`;
+
+        return `
+          <div class="service-item">
+            <div>
+              <div class="service-top">
+                <div class="service-title">${esc(title)}</div>
+                ${badgeHtml}
+              </div>
+              <p class="service-desc" style="margin-top:6px;">${esc(desc)}</p>
+            </div>
+            <button type="button" class="btn btn-soft btn-sm" onclick="addServiceToCart('${esc(srv.id)}')">${esc(d.btnAddCart)}</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function populateAdminStatusSelects() {
       const filterSel = document.getElementById("filtroEstatusTaller");
       const editSel = document.getElementById("editEstatus");
       const prevFilter = filterSel.value || "TODOS";
       const prevEdit = editSel.value || "En fila";
 
-      filterSel.innerHTML = `<option value="TODOS">${esc(t().allStatuses)}</option>` +
-        STATUS_KEYS.map(k => `<option value="${esc(k)}">${esc(statusLabel(k))}</option>`).join("");
+      filterSel.innerHTML = `<option value="TODOS">Todos</option>` +
+        STATUS_KEYS.map(k => `<option value="${esc(k)}">${esc(k)}</option>`).join("");
       filterSel.value = prevFilter;
 
-      editSel.innerHTML = STATUS_KEYS.map(k => `<option value="${esc(k)}">${esc(statusLabel(k))}</option>`).join("");
+      editSel.innerHTML = STATUS_KEYS.map(k => `<option value="${esc(k)}">${esc(k)}</option>`).join("");
       editSel.value = STATUS_KEYS.includes(prevEdit) ? prevEdit : "En fila";
     }
 
     function applyTranslations() {
-      const d = t();
+      const d = tClient(currentLang);
       document.documentElement.lang = d.htmlLang;
       document.title = d.docTitle;
       document.getElementById("btnLangEn").classList.toggle("active", currentLang === "en");
@@ -840,6 +1231,10 @@
         const el = document.getElementById(id);
         if (el) el.textContent = val;
       };
+      const setHtml = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = val;
+      };
       const setPh = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.placeholder = val;
@@ -848,40 +1243,29 @@
       setText("tSubtitle", d.subtitle);
       setText("tabBtnTurno", d.tabTurno);
       setText("tabBtnCola", d.tabCola);
-      setText("tabBtnTaller", d.tabTaller);
       setText("tFormTitle", d.formTitle);
+      setText("tHoursLabel", d.hoursLabel);
+      setText("tHoursValue", d.hoursValue);
+      setText("tPhoneInfoLabel", d.phoneInfoLabel);
+      setText("tEmailInfoLabel", d.emailInfoLabel);
       setText("lblNombre", d.lblNombre);
       setPh("cliNombre", d.phNombre);
       setText("lblTelefono", d.lblTelefono);
-      setText("lblHora", d.lblHora);
+      setText("lblFecha", d.lblFecha);
+      setText("lblFranja", d.lblFranja);
       setText("tTimeNotice", d.timeNotice);
       setText("lblVehiculo", d.lblVehiculo);
       setPh("cliVehiculo", d.phVehiculo);
+      setText("lblPago", d.lblPago);
+      setText("tCartTitle", d.cartTitle);
+      setText("tCartTotalLabel", d.cartTotalLabel);
+      setText("cartPostServiceNote", d.cartPostServiceNote);
+      setHtml("tPaymentNote", d.paymentNoteHtml);
       setText("btnCrearTurno", d.btnCrearTurno);
-      setText("tTicketRegistered", d.ticketRegistered);
-      setText("tTicketHelp", d.ticketHelp);
       setText("btnCopyCode", d.btnCopyCode);
       setText("btnViewQueue", d.btnViewQueue);
 
       setText("tServicesTitle", d.servicesTitle);
-      setText("srvDiagShopTitle", d.srvDiagShopTitle);
-      setText("srvDiagShopDesc", d.srvDiagShopDesc);
-      setText("srvDiagMobTitle", d.srvDiagMobTitle);
-      setText("srvDiagMobDesc", d.srvDiagMobDesc);
-      setText("srvBrakesTitle", d.srvBrakesTitle);
-      setText("srvBrakesTag", d.srvBrakesTag);
-      setText("srvBrakesDesc", d.srvBrakesDesc);
-      setText("srvElecTitle", d.srvElecTitle);
-      setText("srvElecTag", d.srvElecTag);
-      setText("srvElecDesc", d.srvElecDesc);
-      setText("srvSuspTitle", d.srvSuspTitle);
-      setText("srvSuspTag", d.srvSuspTag);
-      setText("srvSuspDesc", d.srvSuspDesc);
-      setText("srvOilTitle", d.srvOilTitle);
-      setText("srvOilTag", d.srvOilTag);
-      setText("srvOilDesc", d.srvOilDesc);
-      setText("tPaymentNote", d.paymentNote);
-
       setText("tQueueTitle", d.queueTitle);
       setText("btnRefreshQueue", d.btnRefreshQueue);
       setText("lblSearchQueue", d.lblSearchQueue);
@@ -889,47 +1273,19 @@
       setText("thApproxTime", d.thApproxTime);
       setText("thStatus", d.thStatus);
 
-      setText("tPanelTitle", d.panelTitle);
-      setText("lblPin", d.lblPin);
-      setText("btnEnterPanel", d.btnEnterPanel);
-      setText("tConnectedLabel", d.connectedLabel);
-      setText("btnReloadOrders", d.btnReloadOrders);
-      setText("btnLockPanel", d.btnLockPanel);
-      setText("tLogoAdminTitle", d.logoAdminTitle);
-      setText("btnResetLogo", d.btnResetLogo);
-      setText("lblFilterOrders", d.lblFilterOrders);
-      setPh("filtroTaller", d.phFilterOrders);
-      setText("lblFilterStatus", d.lblFilterStatus);
-      setText("thAdmOrder", d.thAdmOrder);
-      setText("thAdmClient", d.thAdmClient);
-      setText("thAdmVehicle", d.thAdmVehicle);
-      setText("thAdmStatus", d.thAdmStatus);
-      setText("thAdmActions", d.thAdmActions);
+      const waGreeting = encodeURIComponent(
+        currentLang === "es"
+          ? "Hola, te hablamos desde AKAD Mobile Mechanics."
+          : "Hello, we are reaching out from AKAD Mobile Mechanics."
+      );
+      document.getElementById("floatingWaBtn").href = `https://wa.me/${AKAD_WA_NUMBER}?text=${waGreeting}`;
 
-      setText("tEditingPrefix", d.editingPrefix);
-      setText("btnCloseEditor", d.btnCloseEditor);
-      setText("lblEditModel", d.lblEditModel);
-      setText("lblEditPlate", d.lblEditPlate);
-      setText("lblEditStatus", d.lblEditStatus);
-      setText("lblEditTime", d.lblEditTime);
-      setText("btnGuardarOrden", d.btnGuardarOrden);
-      setText("tObsTitle", d.obsTitle);
-      setText("lblObsMech", d.lblObsMech);
-      setPh("obsMecanico", d.phObsMech);
-      setText("lblObsText", d.lblObsText);
-      setPh("obsTexto", d.phObsText);
-      setText("btnAgregarObs", d.btnAgregarObs);
-      setText("tHistPrefix", d.histPrefix);
-      setText("btnCloseHist", d.btnCloseHist);
-
-      populateStatusSelects();
+      renderCorreoAkad();
+      renderServicesCatalog();
+      renderCart();
       renderColaPublica();
       if (ordenesAdmin.length) {
         renderTablaTaller();
-        if (ordenActivaId) {
-          const active = ordenesAdmin.find(x => x.id === ordenActivaId);
-          if (active) renderObservaciones(active);
-        }
       }
     }
 
@@ -937,6 +1293,21 @@
       currentLang = lang === "es" ? "es" : "en";
       localStorage.setItem(LANG_STORAGE_KEY, currentLang);
       applyTranslations();
+    }
+
+    function abrirAccesoAdminPorTitulo() {
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById("tabTaller").classList.add("active");
+      renderCorreoAkad();
+      if (sessionStorage.getItem(PIN_SESSION_KEY)) {
+        document.getElementById("adminPinInput").value = sessionStorage.getItem(PIN_SESSION_KEY);
+        cargarPanelTaller(false);
+      }
+    }
+
+    function volverAFormulario() {
+      switchTab("tabTurno", document.getElementById("tabBtnTurno"));
     }
 
     function applySavedLogo() {
@@ -963,15 +1334,15 @@
         try {
           localStorage.setItem(LOGO_STORAGE_KEY, String(reader.result || ""));
           applySavedLogo();
-          msgEl.textContent = t().logoUpdated;
+          msgEl.textContent = "Logo actualizado.";
         } catch (_) {
           msgEl.classList.add("err-msg");
-          msgEl.textContent = t().logoErr;
+          msgEl.textContent = "No se pudo cargar la imagen.";
         }
       };
       reader.onerror = () => {
         msgEl.classList.add("err-msg");
-        msgEl.textContent = t().logoErr;
+        msgEl.textContent = "No se pudo cargar la imagen.";
       };
       reader.readAsDataURL(file);
     }
@@ -983,7 +1354,7 @@
       applySavedLogo();
       const msgEl = document.getElementById("logoStatusMsg");
       msgEl.classList.remove("err-msg");
-      msgEl.textContent = t().logoReset;
+      msgEl.textContent = "Logo por defecto restaurado.";
     }
 
     function cargarCacheCola() {
@@ -1017,7 +1388,7 @@
 
         const timer = setTimeout(() => {
           cleanup();
-          reject(new Error(t().errQueue));
+          reject(new Error(tClient(currentLang).errQueue));
         }, 15000);
 
         window[cbName] = (payload) => {
@@ -1031,7 +1402,7 @@
         script.onerror = () => {
           clearTimeout(timer);
           cleanup();
-          reject(new Error(t().errQueue));
+          reject(new Error(tClient(currentLang).errQueue));
         };
 
         document.body.appendChild(script);
@@ -1048,54 +1419,83 @@
       document.getElementById(id).classList.add("active");
       if (btn) btn.classList.add("active");
       if (id === "tabCola") cargarColaPublica(false);
-      if (id === "tabTaller" && sessionStorage.getItem(PIN_SESSION_KEY)) {
-        document.getElementById("adminPinInput").value = sessionStorage.getItem(PIN_SESSION_KEY);
-        cargarPanelTaller(false);
-      }
     }
 
     async function crearTurno(ev) {
       ev.preventDefault();
+      if (!validarFechaLaboral()) return;
+
       const btn = document.getElementById("btnCrearTurno");
       const statusEl = document.getElementById("turnoStatusMsg");
       statusEl.classList.remove("err-msg");
 
       const nombre = document.getElementById("cliNombre").value.trim();
-      const tel = document.getElementById("cliTelefono").value.trim();
-      const hora = document.getElementById("cliHoraAprox").value;
+      const region = document.getElementById("cliPhoneRegion").value;
+      const localTel = document.getElementById("cliPhoneLocal").value.trim();
+      const tel = `${region} ${localTel}`.trim();
+      const fecha = document.getElementById("cliFecha").value;
+      const franja = document.getElementById("cliFranja").value;
+      const agendaTexto = `${fecha} | ${franja}`;
       const vehiculo = document.getElementById("cliVehiculo").value.trim();
+      const pago = document.getElementById("cliPago").value;
+
+      const reqLang = detectarIdiomaSolicitud(`${nombre} ${vehiculo}`);
+      const msgDict = tClient(reqLang);
 
       btn.disabled = true;
-      statusEl.textContent = t().submittingTurn;
+      statusEl.textContent = msgDict.submittingTurn;
 
       try {
         const res = await callGasJsonp({
           action: "createTurno",
           cliente_nombre: nombre,
           cliente_telefono: tel,
-          hora_aproximada: hora,
+          hora_aproximada: agendaTexto,
           modelo: vehiculo
         });
 
         if (!res || !res.ok || !res.data) {
-          throw new Error((res && res.error) || t().errCreateTurn);
+          throw new Error((res && res.error) || msgDict.errCreateTurn);
         }
 
-        ultimoCodigoGenerado = res.data.id;
+        const createdId = res.data.id;
+        ordersMeta[createdId] = {
+          pago,
+          items: cartItems.map(i => ({
+            id: i.id,
+            emoji: i.emoji,
+            price: i.price,
+            badgeType: i.badgeType,
+            enTitle: i.enTitle,
+            esTitle: i.esTitle
+          })),
+          lang: reqLang
+        };
+        guardarOrdersMeta();
+
+        ultimoCodigoGenerado = createdId;
+        cartItems = [];
+        renderCart();
         document.getElementById("formTurno").reset();
-        document.getElementById("ticketCodigo").textContent = res.data.id;
+        configurarRangoFechaAgenda();
+
+        document.getElementById("tTicketRegistered").textContent = msgDict.ticketRegistered;
+        document.getElementById("tTicketHelp").textContent = msgDict.ticketHelp;
+        document.getElementById("btnCopyCode").textContent = msgDict.btnCopyCode;
+        document.getElementById("btnViewQueue").textContent = msgDict.btnViewQueue;
+        document.getElementById("ticketCodigo").textContent = createdId;
         document.getElementById("ticketBox").style.display = "block";
         statusEl.textContent = "";
 
         colaPublica.unshift({
-          id: res.data.id,
-          hora_aproximada: res.data.hora_aproximada,
+          id: createdId,
+          hora_aproximada: res.data.hora_aproximada || agendaTexto,
           estatus: res.data.estatus || "En fila"
         });
         guardarCacheCola(colaPublica);
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || t().errCreateTurn;
+        statusEl.textContent = err.message || msgDict.errCreateTurn;
       } finally {
         btn.disabled = false;
       }
@@ -1108,8 +1508,7 @@
 
     function irAColaConCodigo() {
       document.getElementById("buscarCola").value = ultimoCodigoGenerado;
-      const btnCola = document.getElementById("tabBtnCola");
-      switchTab("tabCola", btnCola);
+      switchTab("tabCola", document.getElementById("tabBtnCola"));
     }
 
     function badgeClass(estatus) {
@@ -1125,31 +1524,33 @@
     }
 
     async function cargarColaPublica(showLoading) {
+      const d = tClient(currentLang);
       const statusEl = document.getElementById("colaStatusMsg");
       statusEl.classList.remove("err-msg");
-      if (showLoading) statusEl.textContent = t().updatingQueue;
+      if (showLoading) statusEl.textContent = d.updatingQueue;
       renderColaPublica();
 
       try {
         const res = await callGasJsonp({ action: "queue" });
-        if (!res || !res.ok) throw new Error((res && res.error) || t().errQueue);
+        if (!res || !res.ok) throw new Error((res && res.error) || d.errQueue);
         colaPublica = Array.isArray(res.queue) ? res.queue : [];
         guardarCacheCola(colaPublica);
         renderColaPublica();
         statusEl.textContent = "";
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || t().errQueue;
+        statusEl.textContent = err.message || d.errQueue;
       }
     }
 
     function renderColaPublica() {
+      const d = tClient(currentLang);
       const q = (document.getElementById("buscarCola").value || "").trim().toLowerCase();
       const rows = colaPublica.filter(o => !q || String(o.id || "").toLowerCase().includes(q));
       const body = document.getElementById("colaBody");
 
       if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="3" style="color:var(--muted);">${esc(t().emptyQueue)}</td></tr>`;
+        body.innerHTML = `<tr><td colspan="3" style="color:var(--muted);">${esc(d.emptyQueue)}</td></tr>`;
         return;
       }
 
@@ -1157,7 +1558,7 @@
         <tr>
           <td><b>${esc(o.id)}</b></td>
           <td>${esc(o.hora_aproximada)}</td>
-          <td><span class="${badgeClass(o.estatus)}">${esc(statusLabel(o.estatus))}</span></td>
+          <td><span class="${badgeClass(o.estatus)}">${esc(statusLabelClient(o.estatus, currentLang))}</span></td>
         </tr>
       `).join("");
     }
@@ -1169,15 +1570,15 @@
 
       if (!pin) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = t().errMissingPin;
+        statusEl.textContent = "Ingresa el PIN del taller.";
         return;
       }
 
-      statusEl.textContent = t().loadingOrders;
+      statusEl.textContent = "Cargando órdenes...";
       try {
         const res = await callGasJsonp({ action: "adminList", pin });
         if (!res || !res.ok) {
-          throw new Error((res && res.error) || t().errInvalidPin);
+          throw new Error((res && res.error) || "PIN inválido.");
         }
         sessionStorage.setItem(PIN_SESSION_KEY, pin);
         ordenesAdmin = Array.isArray(res.orders) ? res.orders : [];
@@ -1193,7 +1594,7 @@
       } catch (err) {
         if (isLogin) sessionStorage.removeItem(PIN_SESSION_KEY);
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || t().errPanel;
+        statusEl.textContent = err.message || "Error al cargar el panel.";
       }
     }
 
@@ -1223,6 +1624,20 @@
       }).length;
     }
 
+    function construirMensajeCliente(orden, meta) {
+      const items = (meta && Array.isArray(meta.items)) ? meta.items : [];
+      const pago = (meta && meta.pago) || "POS";
+      const summary = getCartSummaryText(items, "es");
+
+      if (summary.hasFixedPrice && !summary.hasPostServicePrice) {
+        return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida por un monto de $${summary.fixedTotal}.`;
+      }
+      if (summary.hasFixedPrice && summary.hasPostServicePrice) {
+        return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida (servicios fijos por $${summary.fixedTotal}; los demás servicios se cotizan al finalizar el servicio).`;
+      }
+      return `Hola, te hablamos desde AKAD Mobile Mechanics. Tu orden número ${orden.id} bajo el método de pago ${pago} fue recibida; el precio se indicará luego de finalizar el servicio.`;
+    }
+
     function renderTablaTaller() {
       const q = (document.getElementById("filtroTaller").value || "").trim().toLowerCase();
       const est = document.getElementById("filtroEstatusTaller").value;
@@ -1235,39 +1650,38 @@
 
       const body = document.getElementById("tallerBody");
       if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="5" style="color:var(--muted);">${esc(t().emptyAdmin)}</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" style="color:var(--muted);">Sin resultados.</td></tr>`;
         return;
       }
 
       body.innerHTML = rows.map(o => {
         const visitas = contarVisitas(o);
         const waNum = normalizarTel(o.cliente_telefono);
-        const msgWa = encodeURIComponent(
-          currentLang === "es"
-            ? (o.estatus === "Reprogramada"
-                ? `Hola ${o.cliente_nombre}, recibimos tu orden ${o.id}. Reprogramamos tu llegada para las ${o.hora_aproximada}. ¿Te queda bien?`
-                : `Hola ${o.cliente_nombre}, te contactamos de AKAD Mobile Mechanics por tu orden ${o.id} (${statusLabel(o.estatus)}, hora aprox. ${o.hora_aproximada}).`)
-            : (o.estatus === "Reprogramada"
-                ? `Hi ${o.cliente_nombre}, we received your order ${o.id}. We rescheduled your arrival for ${o.hora_aproximada}. Does that work for you?`
-                : `Hi ${o.cliente_nombre}, this is AKAD Mobile Mechanics regarding order ${o.id} (${statusLabel(o.estatus)}, approx. time ${o.hora_aproximada}).`)
-        );
+        const meta = ordersMeta[o.id] || { pago: "POS", items: [] };
+        const summary = getCartSummaryText(meta.items, "es");
+        const msgCliente = construirMensajeCliente(o, meta);
+        const msgWa = encodeURIComponent(msgCliente);
 
         return `
           <tr>
             <td><b>${esc(o.id)}</b><br><small>${esc(o.hora_aproximada)}</small></td>
             <td>
               <b>${esc(o.cliente_nombre)}</b>
-              ${visitas > 1 ? `<span class="visits-pill">${esc(t().visitsBadge(visitas))}</span>` : ""}
+              ${visitas > 1 ? `<span class="visits-pill">${visitas} visitas</span>` : ""}
               <br><small>${esc(o.cliente_telefono)}</small>
             </td>
             <td>
-              <b>${esc(o.modelo || t().noModel)}</b><br>
-              <small>${esc(t().platePrefix)} ${esc(o.placa || "—")}</small>
+              <div><b>Pago:</b> <b>${esc(meta.pago || "POS")}</b></div>
+              <small>${esc(summary.servicesText)}</small>
             </td>
-            <td><span class="${badgeClass(o.estatus)}">${esc(statusLabel(o.estatus))}</span></td>
+            <td>
+              <b>${esc(o.modelo || "Sin modelo")}</b><br>
+              <small>Placa: ${esc(o.placa || "—")}</small>
+            </td>
+            <td><span class="${badgeClass(o.estatus)}">${esc(o.estatus)}</span></td>
             <td style="display:flex;gap:5px;flex-wrap:wrap;">
-              <button class="btn btn-primary btn-sm" type="button" onclick="abrirEditor('${esc(o.id)}')">${esc(t().btnEdit)}</button>
-              <button class="btn btn-soft btn-sm" type="button" onclick="verHistorial('${esc(o.id)}')">${esc(t().btnHistory)}</button>
+              <button class="btn btn-primary btn-sm" type="button" onclick="abrirEditor('${esc(o.id)}')">Editar</button>
+              <button class="btn btn-soft btn-sm" type="button" onclick="verHistorial('${esc(o.id)}')">Historial</button>
               ${waNum ? `<a class="btn btn-wa btn-sm" target="_blank" rel="noopener noreferrer" href="https://wa.me/${waNum}?text=${msgWa}">WhatsApp</a>` : ""}
             </td>
           </tr>
@@ -1306,7 +1720,7 @@
       const hora_aproximada = document.getElementById("editHora").value.trim();
 
       btn.disabled = true;
-      statusEl.textContent = t().saving;
+      statusEl.textContent = "Guardando...";
 
       try {
         const res = await callGasJsonp({
@@ -1319,13 +1733,13 @@
           hora_aproximada
         });
 
-        if (!res || !res.ok) throw new Error((res && res.error) || t().errSave);
-        statusEl.textContent = t().saved;
+        if (!res || !res.ok) throw new Error((res && res.error) || "Error al guardar.");
+        statusEl.textContent = "Guardado.";
         await cargarPanelTaller(false);
         await cargarColaPublica(false);
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || t().errSave;
+        statusEl.textContent = err.message || "Error al guardar.";
       } finally {
         btn.disabled = false;
       }
@@ -1342,7 +1756,7 @@
       if (!texto) return;
 
       btn.disabled = true;
-      statusEl.textContent = t().addingObs;
+      statusEl.textContent = "Agregando observación...";
 
       try {
         const res = await callGasJsonp({
@@ -1353,13 +1767,13 @@
           texto
         });
 
-        if (!res || !res.ok) throw new Error((res && res.error) || t().errObs);
+        if (!res || !res.ok) throw new Error((res && res.error) || "Error al agregar observación.");
         document.getElementById("obsTexto").value = "";
-        statusEl.textContent = t().obsSaved;
+        statusEl.textContent = "Observación guardada.";
         await cargarPanelTaller(false);
       } catch (err) {
         statusEl.classList.add("err-msg");
-        statusEl.textContent = err.message || t().errObs;
+        statusEl.textContent = err.message || "Error al agregar observación.";
       } finally {
         btn.disabled = false;
       }
@@ -1369,7 +1783,7 @@
       const box = document.getElementById("obsLista");
       const list = o.observaciones || [];
       if (!list.length) {
-        box.innerHTML = `<div style="font-size:12px;color:var(--muted);">${esc(t().noObs)}</div>`;
+        box.innerHTML = `<div style="font-size:12px;color:var(--muted);">Sin observaciones registradas aún.</div>`;
         return;
       }
       box.innerHTML = list.map(item => `
@@ -1397,8 +1811,8 @@
         const obsHtml = (m.observaciones || []).map(x => `<div>• [${esc(x.fecha_hora)} - ${esc(x.mecanico)}] ${esc(x.texto)}</div>`).join("");
         return `
           <div style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
-            <b>${esc(m.id)}</b> — ${esc(statusLabel(m.estatus))} — ${esc(m.hora_aproximada)}<br>
-            ${esc(t().histVehicle)} <b>${esc(m.modelo || "—")}</b> | ${esc(t().histPlate)} <b>${esc(m.placa || "—")}</b>
+            <b>${esc(m.id)}</b> — Estatus: <b>${esc(m.estatus)}</b> — Agenda: ${esc(m.hora_aproximada)}<br>
+            Vehículo: <b>${esc(m.modelo || "—")}</b> | Placa: <b>${esc(m.placa || "—")}</b>
             ${obsHtml ? `<div style="margin-top:4px;color:#334155;">${obsHtml}</div>` : ""}
           </div>
         `;
@@ -1407,7 +1821,9 @@
       document.getElementById("historialBox").style.display = "block";
     }
 
+    configurarRangoFechaAgenda();
     applySavedLogo();
+    populateAdminStatusSelects();
     applyTranslations();
     cargarColaPublica(false);
   </script>
