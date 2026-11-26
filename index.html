@@ -62,17 +62,23 @@
     }
     .entity-title-btn:hover { color: #FFD7C2; text-decoration: underline; text-underline-offset: 3px; }
     .brand p { font-size: 12.5px; color: #E7DFD8; margin-top: 2px; }
-    .location-link {
+    .header-links-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 5px;
+    }
+    .location-link, .header-contact-link {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      margin-top: 4px;
       font-size: 12px;
       font-weight: 700;
       color: #FFB996;
       text-decoration: none;
     }
-    .location-link:hover { color: #FFF; text-decoration: underline; text-underline-offset: 3px; }
+    .location-link:hover, .header-contact-link:hover { color: #FFF; text-decoration: underline; text-underline-offset: 3px; }
 
     .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .lang-switch {
@@ -437,9 +443,17 @@
         <div>
           <button type="button" class="entity-title-btn" id="entityTitleBtn" onclick="abrirAccesoAdminPorTitulo()">AKAD Mobile Mechanics</button>
           <p id="tSubtitle">Turn Queue &amp; Live Status</p>
-          <a class="location-link" id="tLocationLink" href="https://maps.app.goo.gl/8nC92cRb75KRz2Sa7" target="_blank" rel="noopener noreferrer">
-            📍 AKAD Location · Open in Google Maps
-          </a>
+          <div class="header-links-row">
+            <a class="location-link" id="tLocationLink" href="https://maps.app.goo.gl/8nC92cRb75KRz2Sa7" target="_blank" rel="noopener noreferrer">
+              📍 AKAD Location · Google Maps
+            </a>
+            <a class="header-contact-link" id="tHeaderWaLink" href="https://wa.me/13219146552" target="_blank" rel="noopener noreferrer">
+              💬 WhatsApp: +1 321 9146552
+            </a>
+            <a class="header-contact-link" id="tHeaderSmsLink" href="sms:+13219146552">
+              ✉️ SMS: 3219146552
+            </a>
+          </div>
         </div>
       </div>
 
@@ -469,7 +483,7 @@
           <div class="info-chip">
             <strong id="tPhoneInfoLabel">Phone / SMS</strong>
             <span>+1 321 9146552</span>
-            <a class="chip-sublink" id="tSmsChipLink" href="sms:+13219146552">SMS</a>
+            <a class="chip-sublink" id="tSmsChipLink" href="sms:+13219146552">SMS (3219146552)</a>
           </div>
           <div class="info-chip">
             <strong id="tEmailInfoLabel">Email</strong>
@@ -497,7 +511,7 @@
                   <option value="+52">🇲🇽 +52 (MX)</option>
                   <option value="+34">🇪🇸 +34 (ES)</option>
                 </select>
-                <input type="tel" id="cliPhoneLocal" required placeholder="407 555 0199" />
+                <input type="tel" id="cliPhoneLocal" required placeholder="4241913036" />
               </div>
             </div>
           </div>
@@ -547,7 +561,7 @@
 
           <div class="domicilio-box" id="domicilioBox">
             <div class="field" style="margin-bottom:0;">
-              <label for="cliDireccionRef" id="lblDireccionRef">Reference address for mobile service *</label>
+              <label for="cliDireccionRef" id="lblDireccionRef">Service address (required for mobile/home service) *</label>
               <input type="text" id="cliDireccionRef" placeholder="Street, apartment/house number, landmark or ZIP code..." />
             </div>
           </div>
@@ -703,6 +717,12 @@
                   <input type="text" id="srvEsDesc" required />
                 </div>
               </div>
+              <div class="field">
+                <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--ink);">
+                  <input type="checkbox" id="srvMobileDelivery" style="width:auto;" />
+                  <span>Servicio a domicilio / móvil (exige dirección del cliente en el formulario)</span>
+                </label>
+              </div>
               <button class="btn btn-primary btn-sm" id="btnGuardarServicio" type="submit">+ Crear Servicio</button>
               <span class="status-msg" id="srvAdminStatusMsg" style="margin-left:8px;"></span>
             </form>
@@ -803,7 +823,7 @@
   </a>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwHgoFWSWlAZwQaLXl7HxNTqQwN-eyY2HKk7tEayRckIz9xygPxSp8aqcvKCV8gKMw/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzBs8Rr-2tGclOpXMHa-_osTWUD5kBX6j5nI-j9C_7gpDSh_ofkpaaNBz5a4p1lTETO/exec";
     const AKAD_WA_NUMBER = "13219146552";
     const AKAD_SMS_NUMBER = "3219146552";
     const AKAD_MAPS_URL = "https://maps.app.goo.gl/8nC92cRb75KRz2Sa7";
@@ -827,6 +847,7 @@
         emoji: "🖥️",
         price: 50,
         badgeType: "price",
+        mobileDelivery: false,
         enTitle: "Shop Diagnostics & Scanning",
         esTitle: "Diagnóstico y Escaneo en Taller",
         enDesc: "In-shop scan and diagnostic check.",
@@ -837,16 +858,18 @@
         emoji: "🚐",
         price: 100,
         badgeType: "price",
+        mobileDelivery: true,
         enTitle: "Mobile Diagnostic & Repair",
         esTitle: "Diagnóstico y Reparación Móvil",
-        enDesc: "On-site mobile diagnostic and repair service.",
-        esDesc: "Servicio de diagnóstico y reparación a domicilio."
+        enDesc: "On-site mobile diagnostic and repair service (address required).",
+        esDesc: "Servicio de diagnóstico y reparación a domicilio (requiere dirección)."
       },
       {
         id: "brakes",
         emoji: "🛑",
         price: null,
         badgeType: "service",
+        mobileDelivery: false,
         enTitle: "Brake Repair",
         esTitle: "Reparación de Frenos",
         enDesc: "Brake inspection and repair service.",
@@ -857,6 +880,7 @@
         emoji: "⚡",
         price: null,
         badgeType: "service",
+        mobileDelivery: false,
         enTitle: "Electrical Repair",
         esTitle: "Reparación Eléctrica",
         enDesc: "Automotive electrical system troubleshooting and repair.",
@@ -867,6 +891,7 @@
         emoji: "🛞",
         price: null,
         badgeType: "service",
+        mobileDelivery: false,
         enTitle: "Suspension Repair",
         esTitle: "Reparación de Suspensión",
         enDesc: "Suspension components inspection and repair.",
@@ -877,6 +902,7 @@
         emoji: "🛢️",
         price: null,
         badgeType: "loyalty",
+        mobileDelivery: false,
         enTitle: "Oil Change Loyalty Program",
         esTitle: "Programa de Lealtad de Cambio de Aceite",
         enDesc: "Recurring oil change loyalty program for returning customers.",
@@ -889,10 +915,10 @@
         htmlLang: "en",
         docTitle: "AKAD Mobile Mechanics — Queue & Services",
         subtitle: "Turn Queue & Live Status",
-        locationLink: "📍 AKAD Location · Open in Google Maps",
+        locationLink: "📍 AKAD Location · Google Maps",
         locationInfoLabel: "Location",
         locationChipText: "Open in Google Maps 📍",
-        smsChipText: "SMS",
+        smsChipText: "SMS (3219146552)",
         smsClientMessage: "Hello, I saw your portal and would like to reach out regarding a case / I'm interested in AKAD's services.",
         waClientMessage: "Hello, I saw your portal and would like to reach out regarding a case / I'm interested in AKAD's services.",
         tabTurno: "1. Book Turn",
@@ -911,9 +937,9 @@
         lblModalidad: "Service mode *",
         optTaller: "At Shop (AKAD Location)",
         optDomicilio: "Mobile Service (At your location)",
-        lblDireccionRef: "Reference address for mobile service *",
+        lblDireccionRef: "Service address (required for mobile/home service) *",
         phDireccionRef: "Street, apartment/house number, landmark or ZIP code...",
-        errDireccionRef: "Please enter a reference address for mobile service.",
+        errDireccionRef: "Please enter your service address because a mobile/home service is selected.",
         lblVehiculo: "Vehicle (Optional)",
         lblPago: "Payment method *",
         cartTitle: "Selected Services Cart",
@@ -926,6 +952,7 @@
         paymentNoteHtml: "Payments accepted via <strong>POS</strong> and <strong>PayPal</strong>.",
         tagService: "Service",
         tagLoyalty: "Loyalty",
+        tagMobile: "Mobile / Address req.",
         btnCrearTurno: "Submit Order & View Queue",
         submittingTurn: "Registering your order...",
         errCreateTurn: "Could not register the order.",
@@ -959,10 +986,10 @@
         htmlLang: "es",
         docTitle: "AKAD Mobile Mechanics — Cola de Órdenes y Servicios",
         subtitle: "Turnos y Cola de Atención",
-        locationLink: "📍 Ubicación AKAD · Ver en Google Maps",
+        locationLink: "📍 Ubicación AKAD · Google Maps",
         locationInfoLabel: "Ubicación",
         locationChipText: "Ver en Google Maps 📍",
-        smsChipText: "SMS",
+        smsChipText: "SMS (3219146552)",
         smsClientMessage: "Hola, vi su portal y quisiera comunicarme con ustedes por un caso / estoy interesado en sus servicios.",
         waClientMessage: "Hola, vi su portal y quisiera comunicarme con ustedes por un caso / estoy interesado en sus servicios.",
         tabTurno: "1. Pedir Turno",
@@ -981,9 +1008,9 @@
         lblModalidad: "Modalidad de atención *",
         optTaller: "En taller (Ubicación AKAD)",
         optDomicilio: "A domicilio (Servicio móvil)",
-        lblDireccionRef: "Dirección de referencia para servicio a domicilio *",
+        lblDireccionRef: "Dirección de servicio (obligatoria para domicilio) *",
         phDireccionRef: "Calle, número de casa/apto, punto de referencia o código postal...",
-        errDireccionRef: "Por favor indica una dirección de referencia para el servicio a domicilio.",
+        errDireccionRef: "Debes indicar tu dirección en el formulario porque seleccionaste un servicio a domicilio.",
         lblVehiculo: "Vehículo (Opcional)",
         lblPago: "Método de pago *",
         cartTitle: "Carrito de Servicios",
@@ -996,6 +1023,7 @@
         paymentNoteHtml: "Pagos aceptados por <strong>POS</strong> y <strong>PayPal</strong>.",
         tagService: "Servicio",
         tagLoyalty: "Lealtad",
+        tagMobile: "Domicilio · Dir. obligatoria",
         btnCrearTurno: "Registrar Orden y Ver Cola",
         submittingTurn: "Registrando tu orden...",
         errCreateTurn: "No se pudo registrar la orden.",
@@ -1059,6 +1087,7 @@
       document.getElementById("srvEditId").value = "";
       document.getElementById("formServicioAdmin").reset();
       document.getElementById("srvEmoji").value = "🔧";
+      document.getElementById("srvMobileDelivery").checked = false;
       document.getElementById("srvFormHeading").textContent = "Crear Nuevo Servicio en AKAD Services";
       document.getElementById("btnGuardarServicio").textContent = "+ Crear Servicio";
       document.getElementById("btnCancelarEdicionSrv").style.display = "none";
@@ -1074,6 +1103,7 @@
       document.getElementById("srvEsTitle").value = srv.esTitle || "";
       document.getElementById("srvEnDesc").value = srv.enDesc || "";
       document.getElementById("srvEsDesc").value = srv.esDesc || "";
+      document.getElementById("srvMobileDelivery").checked = Boolean(srv.mobileDelivery);
       document.getElementById("srvFormHeading").textContent = "Editando Servicio: " + (srv.esTitle || srv.enTitle || srv.id);
       document.getElementById("btnGuardarServicio").textContent = "Guardar Cambios del Servicio";
       document.getElementById("btnCancelarEdicionSrv").style.display = "inline-flex";
@@ -1113,8 +1143,12 @@
       const esTitle = document.getElementById("srvEsTitle").value.trim();
       const enDesc = document.getElementById("srvEnDesc").value.trim();
       const esDesc = document.getElementById("srvEsDesc").value.trim();
+      const checkedDomicilio = Boolean(document.getElementById("srvMobileDelivery")?.checked);
 
       if (!enTitle || !esTitle || !enDesc || !esDesc) return;
+
+      const esDomicilioPorTexto = /domicilio|mobile|móvil|a domicilio/i.test(`${enTitle} ${esTitle} ${enDesc} ${esDesc}`);
+      const esDomicilio = checkedDomicilio || esDomicilioPorTexto;
 
       if (editId) {
         const idx = servicesCatalog.findIndex(s => s.id === editId);
@@ -1125,6 +1159,7 @@
             emoji,
             price: hasValidPrice ? parsedPrice : null,
             badgeType: prev.badgeType === "loyalty" && !hasValidPrice ? "loyalty" : (hasValidPrice ? "price" : "service"),
+            mobileDelivery: esDomicilio,
             enTitle,
             esTitle,
             enDesc,
@@ -1139,6 +1174,7 @@
           emoji,
           price: hasValidPrice ? parsedPrice : null,
           badgeType: hasValidPrice ? "price" : "service",
+          mobileDelivery: esDomicilio,
           enTitle,
           esTitle,
           enDesc,
@@ -1146,6 +1182,7 @@
         });
         document.getElementById("formServicioAdmin").reset();
         document.getElementById("srvEmoji").value = "🔧";
+        document.getElementById("srvMobileDelivery").checked = false;
         statusEl.textContent = "Servicio creado y publicado.";
       }
 
@@ -1168,6 +1205,7 @@
             <div>
               <b>${esc(srv.emoji || "🔧")} ${esc(srv.esTitle)}</b> / <span>${esc(srv.enTitle)}</span>
               <span class="visits-pill">${esc(precioTxt)}</span>
+              ${srv.mobileDelivery ? `<span class="mode-pill">Requiere dirección</span>` : ""}
               <div style="color:var(--muted);margin-top:2px;">${esc(srv.esDesc)}</div>
             </div>
             <div style="display:flex;gap:6px;">
@@ -1179,18 +1217,22 @@
       }).join("");
     }
 
+    function requiereDireccionEnFormulario() {
+      const modSel = document.getElementById("cliModalidad");
+      const porModalidad = modSel && modSel.value === "A domicilio";
+      const porCarrito = cartItems.some(i => Boolean(i.mobileDelivery));
+      return Boolean(porModalidad || porCarrito);
+    }
+
     function toggleDireccionDomicilio() {
       const modSel = document.getElementById("cliModalidad");
       const box = document.getElementById("domicilioBox");
       const dirInput = document.getElementById("cliDireccionRef");
       if (!modSel || !box || !dirInput) return;
 
-      const esDomicilio = modSel.value === "A domicilio";
+      const esDomicilio = requiereDireccionEnFormulario();
       box.classList.toggle("open", esDomicilio);
       dirInput.required = esDomicilio;
-      if (!esDomicilio) {
-        dirInput.value = "";
-      }
     }
 
     function cargarCorreoAkad() {
@@ -1233,9 +1275,9 @@
       const clean = String(texto || "").trim();
       if (!clean) return currentLang;
       const lower = clean.toLowerCase();
-      const esMarkers = /\b(hola|gracias|por favor|carro|coche|freno|frenos|aceite|bateria|batería|motor|ruido|taller|cambio|revision|revisión|necesito|quiero|ayuda|no enciende|averia|avería)\b|[áéíóúñ¿¡]/i;
+      const esMarkers = /\b(hola|gracias|por favor|carro|coche|freno|frenos|aceite|bateria|batería|motor|ruido|taller|cambio|revision|revisión|necesito|quiero|ayuda|no enciende|averia|avería|domicilio)\b|[áéíóúñ¿¡]/i;
       if (esMarkers.test(lower)) return "es";
-      const enMarkers = /\b(hello|hi|please|thanks|thank you|car|brake|brakes|oil|battery|engine|noise|shop|service|repair|diagnostic|check|need|help|won't start|wont start|alternator|starter|tire|tires|wheel|suspension)\b/i;
+      const enMarkers = /\b(hello|hi|please|thanks|thank you|car|brake|brakes|oil|battery|engine|noise|shop|service|repair|diagnostic|check|need|help|won't start|wont start|alternator|starter|tire|tires|wheel|suspension|mobile)\b/i;
       if (enMarkers.test(lower)) return "en";
       const asciiWords = clean.match(/[a-zA-Z]{2,}/g) || [];
       if (asciiWords.length >= 2) return "en";
@@ -1321,27 +1363,30 @@
     function addServiceToCart(serviceId) {
       const srv = servicesCatalog.find(s => s.id === serviceId);
       if (!srv) return;
+      const esDomicilio = Boolean(srv.mobileDelivery);
       cartItems.push({
         uid: Date.now() + "_" + Math.random().toString(36).slice(2, 7),
         id: srv.id,
         emoji: srv.emoji || "🔧",
         price: srv.price,
         badgeType: srv.badgeType,
+        mobileDelivery: esDomicilio,
         enTitle: srv.enTitle,
         esTitle: srv.esTitle
       });
-      if (srv.id === "diag_mobile") {
+      if (esDomicilio) {
         const modSel = document.getElementById("cliModalidad");
         if (modSel && modSel.value !== "A domicilio") {
           modSel.value = "A domicilio";
-          toggleDireccionDomicilio();
         }
       }
+      toggleDireccionDomicilio();
       renderCart();
     }
 
     function removeServiceFromCart(uid) {
       cartItems = cartItems.filter(item => item.uid !== uid);
+      toggleDireccionDomicilio();
       renderCart();
     }
 
@@ -1412,7 +1457,7 @@
         }
         return `
           <div class="cart-row">
-            <span><b>${esc(title)}</b> — <span>${esc(priceLabel)}</span></span>
+            <span><b>${esc(title)}</b> — <span>${esc(priceLabel)}</span>${item.mobileDelivery ? ` <span class="mode-pill">${esc(d.tagMobile)}</span>` : ""}</span>
             <button type="button" class="btn btn-soft btn-sm" onclick="removeServiceFromCart('${esc(item.uid)}')">${esc(d.btnRemoveCart)}</button>
           </div>
         `;
@@ -1450,6 +1495,7 @@
                 ${badgeHtml}
               </div>
               <p class="service-desc" style="margin-top:6px;">${esc(desc)}</p>
+              ${srv.mobileDelivery ? `<div style="margin-top:6px;"><span class="mode-pill">${esc(d.tagMobile)}</span></div>` : ""}
             </div>
             <button type="button" class="btn btn-soft btn-sm" onclick="addServiceToCart('${esc(srv.id)}')">${esc(d.btnAddCart)}</button>
           </div>
@@ -1497,6 +1543,8 @@
       setText("tLocationChipLink", d.locationChipText);
       document.getElementById("tLocationLink").href = AKAD_MAPS_URL;
       document.getElementById("tLocationChipLink").href = AKAD_MAPS_URL;
+      document.getElementById("tHeaderWaLink").href = `https://wa.me/${AKAD_WA_NUMBER}?text=${encodeURIComponent(d.waClientMessage)}`;
+      document.getElementById("tHeaderSmsLink").href = `sms:+1${AKAD_SMS_NUMBER}?body=${encodeURIComponent(d.smsClientMessage)}`;
 
       setText("tabBtnTurno", d.tabTurno);
       setText("tabBtnCola", d.tabCola);
@@ -1704,15 +1752,19 @@
       const fecha = document.getElementById("cliFecha").value;
       const franja = document.getElementById("cliFranja").value;
       const agendaTexto = `${fecha} | ${franja}`;
-      const modalidad = document.getElementById("cliModalidad").value;
       const direccionRef = document.getElementById("cliDireccionRef").value.trim();
       const vehiculo = document.getElementById("cliVehiculo").value.trim();
       const pago = document.getElementById("cliPago").value;
 
+      const exigenDomicilio = requiereDireccionEnFormulario();
+      const modalidad = exigenDomicilio ? "A domicilio" : document.getElementById("cliModalidad").value;
+
       const reqLang = detectarIdiomaSolicitud(`${nombre} ${vehiculo} ${direccionRef}`);
       const msgDict = tClient(reqLang);
 
-      if (modalidad === "A domicilio" && !direccionRef) {
+      if (exigenDomicilio && !direccionRef) {
+        document.getElementById("cliModalidad").value = "A domicilio";
+        toggleDireccionDomicilio();
         statusEl.classList.add("err-msg");
         statusEl.textContent = msgDict.errDireccionRef;
         document.getElementById("cliDireccionRef").focus();
@@ -1730,7 +1782,7 @@
           hora_aproximada: agendaTexto,
           modelo: vehiculo,
           modalidad,
-          direccion_referencia: modalidad === "A domicilio" ? direccionRef : ""
+          direccion_referencia: exigenDomicilio ? direccionRef : ""
         });
 
         if (!res || !res.ok || !res.data) {
@@ -1741,12 +1793,18 @@
         ordersMeta[createdId] = {
           pago,
           modalidad,
-          direccionRef: modalidad === "A domicilio" ? direccionRef : "",
+          direccionRef: exigenDomicilio ? direccionRef : "",
+          cliente_nombre: nombre,
+          cliente_telefono: tel,
+          modelo: vehiculo,
+          hora_aproximada: res.data.hora_aproximada || agendaTexto,
+          estatus: res.data.estatus || "En fila",
           items: cartItems.map(i => ({
             id: i.id,
             emoji: i.emoji,
             price: i.price,
             badgeType: i.badgeType,
+            mobileDelivery: Boolean(i.mobileDelivery),
             enTitle: i.enTitle,
             esTitle: i.esTitle
           })),
@@ -1769,12 +1827,15 @@
         document.getElementById("ticketBox").style.display = "block";
         statusEl.textContent = "";
 
-        colaPublica.unshift({
-          id: createdId,
-          hora_aproximada: res.data.hora_aproximada || agendaTexto,
-          estatus: res.data.estatus || "En fila"
-        });
-        guardarCacheCola(colaPublica);
+        const existeEnCola = colaPublica.some(x => x.id === createdId);
+        if (!existeEnCola) {
+          colaPublica.unshift({
+            id: createdId,
+            hora_aproximada: res.data.hora_aproximada || agendaTexto,
+            estatus: res.data.estatus || "En fila"
+          });
+          guardarCacheCola(colaPublica);
+        }
       } catch (err) {
         statusEl.classList.add("err-msg");
         statusEl.textContent = err.message || msgDict.errCreateTurn;
@@ -1805,6 +1866,23 @@
       return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
+    function fusionarConOrdenesLocales(remoteList) {
+      const map = new Map();
+      (Array.isArray(remoteList) ? remoteList : []).forEach(item => {
+        if (item && item.id) map.set(item.id, Object.assign({}, item));
+      });
+      Object.entries(ordersMeta || {}).forEach(([id, meta]) => {
+        if (!map.has(id) && meta && (meta.hora_aproximada || meta.estatus)) {
+          map.set(id, {
+            id,
+            hora_aproximada: meta.hora_aproximada || "",
+            estatus: meta.estatus || "En fila"
+          });
+        }
+      });
+      return Array.from(map.values());
+    }
+
     async function cargarColaPublica(showLoading) {
       const d = tClient(currentLang);
       const statusEl = document.getElementById("colaStatusMsg");
@@ -1815,7 +1893,7 @@
       try {
         const res = await callGasJsonp({ action: "queue" });
         if (!res || !res.ok) throw new Error((res && res.error) || d.errQueue);
-        colaPublica = Array.isArray(res.queue) ? res.queue : [];
+        colaPublica = fusionarConOrdenesLocales(res.queue);
         guardarCacheCola(colaPublica);
         renderColaPublica();
         statusEl.textContent = "";
@@ -1845,6 +1923,32 @@
       `).join("");
     }
 
+    function fusionarOrdenesAdmin(remoteOrders) {
+      const byId = new Map();
+      (Array.isArray(remoteOrders) ? remoteOrders : []).forEach(o => {
+        if (o && o.id) {
+          byId.set(o.id, Object.assign({}, o));
+        }
+      });
+      Object.entries(ordersMeta || {}).forEach(([id, meta]) => {
+        if (!byId.has(id) && meta) {
+          byId.set(id, {
+            id,
+            cliente_nombre: meta.cliente_nombre || "Cliente",
+            cliente_telefono: meta.cliente_telefono || "",
+            hora_aproximada: meta.hora_aproximada || "",
+            modelo: meta.modelo || "",
+            placa: meta.placa || "",
+            estatus: meta.estatus || "En fila",
+            modalidad: meta.modalidad || "En taller",
+            direccion_referencia: meta.direccionRef || "",
+            observaciones: []
+          });
+        }
+      });
+      return Array.from(byId.values());
+    }
+
     async function iniciarSesionTaller(ev) {
       ev.preventDefault();
       const inputEl = document.getElementById("adminPinInput");
@@ -1870,7 +1974,7 @@
         adminPinMem = pin;
         adminAutenticado = true;
         inputEl.value = "";
-        ordenesAdmin = Array.isArray(res.orders) ? res.orders : [];
+        ordenesAdmin = fusionarOrdenesAdmin(res.orders);
         document.getElementById("loginTallerBox").style.display = "none";
         document.getElementById("tallerWorkspace").style.display = "block";
         statusEl.textContent = "";
@@ -1900,7 +2004,7 @@
           bloquearPanelTaller();
           throw new Error((res && res.error) || "Sesión no autorizada.");
         }
-        ordenesAdmin = Array.isArray(res.orders) ? res.orders : [];
+        ordenesAdmin = fusionarOrdenesAdmin(res.orders);
         renderAdminServicesList();
         renderTablaTaller();
 
@@ -1968,7 +2072,7 @@
         `• Local: AKAD Mobile Mechanics (Tel/SMS: +1 321-914-6552${akadEmail ? ` | ${akadEmail}` : ""})`,
         `• Ubicación taller: ${AKAD_MAPS_URL}`,
         orden.hora_aproximada ? `• Fecha y franja: ${orden.hora_aproximada}` : "",
-        `• Modalidad: ${modalidad}${modalidad === "A domicilio" && direccionRef ? ` — Ref: ${direccionRef}` : ""}`,
+        `• Modalidad: ${modalidad}${modalidad === "A domicilio" && direccionRef ? ` — Dirección: ${direccionRef}` : ""}`,
         `• Monto: ${montoStr}`,
         `• Método de pago: ${pago}`
       ].filter(Boolean).join("\n");
@@ -2029,7 +2133,7 @@
             <td>
               <div><b>Pago:</b> <b>${esc(meta.pago || "POS")}</b></div>
               <div><span class="mode-pill">${esc(modalidad)}</span></div>
-              ${modalidad === "A domicilio" && dirRef ? `<div><small><b>Ref:</b> ${esc(dirRef)}</small></div>` : ""}
+              ${modalidad === "A domicilio" && dirRef ? `<div><small><b>Dirección:</b> ${esc(dirRef)}</small></div>` : ""}
               <small>${esc(summary.servicesText)}</small>
             </td>
             <td>
@@ -2092,6 +2196,13 @@
         });
 
         if (!res || !res.ok) throw new Error((res && res.error) || "Error al guardar.");
+        if (ordersMeta[ordenActivaId]) {
+          ordersMeta[ordenActivaId].estatus = estatus;
+          ordersMeta[ordenActivaId].hora_aproximada = hora_aproximada;
+          ordersMeta[ordenActivaId].modelo = modelo;
+          ordersMeta[ordenActivaId].placa = placa;
+          guardarOrdersMeta();
+        }
         statusEl.textContent = "Guardado.";
         await cargarPanelTaller();
         await cargarColaPublica(false);
@@ -2173,7 +2284,7 @@
         return `
           <div style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
             <b>${esc(m.id)}</b> — Estatus: <b>${esc(m.estatus)}</b> — Agenda: ${esc(m.hora_aproximada)}<br>
-            Modalidad: <b>${esc(mod)}</b>${dir ? ` (Ref: ${esc(dir)})` : ""} | Vehículo: <b>${esc(m.modelo || "—")}</b> | Placa: <b>${esc(m.placa || "—")}</b>
+            Modalidad: <b>${esc(mod)}</b>${dir ? ` (Dirección: ${esc(dir)})` : ""} | Vehículo: <b>${esc(m.modelo || "—")}</b> | Placa: <b>${esc(m.placa || "—")}</b>
             ${obsHtml ? `<div style="margin-top:4px;color:#334155;">${obsHtml}</div>` : ""}
           </div>
         `;
